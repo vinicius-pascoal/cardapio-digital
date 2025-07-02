@@ -1,0 +1,33 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="#1e2939">
+  <!-- Círculo externo (prato) -->
+  <circle cx="100" cy="100" r="90" stroke="#1e2939" stroke-width="6" fill="none" />
+
+  <!-- Garfo (esquerda, rotacionado -45°, 65px altura) -->
+  <g transform="rotate(-45 100 100)">
+    <rect x="97" y="50" width="6" height="65" />
+    <path d="M96 50 L96 38 Q96 36 98 36 L98 50 Z" />
+    <path d="M98 50 L98 38 Q98 36 100 36 L100 50 Z" />
+    <path d="M100 50 L100 38 Q100 36 102 36 L102 50 Z" />
+    <path d="M102 50 L102 38 Q102 36 104 36 L104 50 Z" />
+  </g>
+
+  <!-- Faca (direita, rotacionado +45°, 65px altura) -->
+  <g transform="rotate(45 100 100)">
+    <rect x="97" y="50" width="6" height="65" rx="2" />
+    <path d="M103 50 Q115 70 103 80 Z" />
+  </g>
+
+  <!-- Chapéu de chef (melhorado e centralizado no topo) -->
+  <path d="
+    M70 48 
+    Q70 30 85 30 
+    Q82 20 95 20 
+    Q100 10 105 20 
+    Q118 20 115 30 
+    Q130 30 130 48 
+    L130 55 
+    Q130 57 128 57 
+    L72 57 
+    Q70 57 70 55 
+    Z" />
+</svg>
