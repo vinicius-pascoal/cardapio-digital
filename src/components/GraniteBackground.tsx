@@ -1,6 +1,8 @@
 import React from "react";
 
-const GraniteBackground: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const GraniteBackground: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gray-100">
       {/* Granite simulation layer */}

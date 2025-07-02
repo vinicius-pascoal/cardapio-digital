@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <GraniteBackground>
-      <main className="flex flex-col items-center h-screen text-gray-800">
+      <main className="flex flex-col items-center h-screen overflow-scroll text-gray-800">
         <Image
           src={logo}
           alt="Logo do Cardápio Digital"
@@ -21,8 +21,23 @@ export default function Home() {
         <h1 className="text-2xl font-bold mb-4 ">
           Bem-vindo ao Cardápio Digital
         </h1>
-        <div className="w-4/5 h-1 bg-gray-800 mb-8"></div>
-          <CategoriaComponet />
+        <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
+        <CategoriaComponet ativo />
+        <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
+        <CategoriaComponet />
+        <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
+        <CategoriaComponet />
+        <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
+
+        <p className="text-sm text-gray-600">
+          Desenvolvido por 
+          <a
+            href="https://github.com/vinicius-pascoal"
+            className="text-blue-500 hover:underline"
+          >
+            Vinicius Pascoal
+          </a>
+        </p>
       </main>
     </GraniteBackground>
   );

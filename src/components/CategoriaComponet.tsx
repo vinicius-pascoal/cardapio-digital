@@ -5,11 +5,17 @@ import Image from "next/image";
 import setaDireita from "../img/setDir.svg";
 import setaBaixo from "../img/setBaix.svg";
 
-export default function CategoriaComponet() {
-  const [ativo, setAtivo] = useState(false);
+interface CategoriaComponentProps {
+  ativo?: boolean;
+}
+
+export default function CategoriaComponet({
+  ativo = false,
+}: CategoriaComponentProps) {
+  const [isAtivo, setIsAtivo] = useState(ativo);
 
   const toggleAtivo = () => {
-    setAtivo((prev) => !prev);
+    setIsAtivo((prev) => !prev);
   };
 
   return (
@@ -19,14 +25,34 @@ export default function CategoriaComponet() {
         onClick={toggleAtivo}
       >
         <Image
-          src={ativo ? setaBaixo : setaDireita}
+          src={isAtivo ? setaBaixo : setaDireita}
           alt="Seta de categoria"
           className="w-6 h-6"
         />
         <h2 className="text-xl font-bold ml-2">Entradas</h2>
       </div>
-      {ativo && (
+      {isAtivo && (
         <ul className="list-none p-0">
+          <li className="flex justify-between items-center mb-4">
+            <span>Salada Caesar</span>
+            <span className="text-gray-600">R$ 25,00</span>
+          </li>
+          <li className="flex justify-between items-center mb-4">
+            <span>Salada Caesar</span>
+            <span className="text-gray-600">R$ 25,00</span>
+          </li>
+          <li className="flex justify-between items-center mb-4">
+            <span>Salada Caesar</span>
+            <span className="text-gray-600">R$ 25,00</span>
+          </li>
+          <li className="flex justify-between items-center mb-4">
+            <span>Salada Caesar</span>
+            <span className="text-gray-600">R$ 25,00</span>
+          </li>
+          <li className="flex justify-between items-center mb-4">
+            <span>Salada Caesar</span>
+            <span className="text-gray-600">R$ 25,00</span>
+          </li>
           <li className="flex justify-between items-center mb-4">
             <span>Salada Caesar</span>
             <span className="text-gray-600">R$ 25,00</span>
