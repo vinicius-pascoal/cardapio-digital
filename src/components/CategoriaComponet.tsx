@@ -7,10 +7,17 @@ import setaBaixo from "../img/setBaix.svg";
 
 interface CategoriaComponentProps {
   ativo?: boolean;
+  nomeCategoria: string;
+  itens: Array<{
+    nome: string;
+    preco: string;
+  }>;
 }
 
 export default function CategoriaComponet({
   ativo = false,
+  nomeCategoria,
+  itens,
 }: CategoriaComponentProps) {
   const [isAtivo, setIsAtivo] = useState(ativo);
 
@@ -19,9 +26,9 @@ export default function CategoriaComponet({
   };
 
   return (
-    <div className="cursor-pointer w-10/12">
+    <div className="cursor-pointer w-4/5  p-4 mb-6">
       <div
-        className="flex justify-between items-center mb-4 mr-32"
+        className="flex justify-between items-center mb-4 "
         onClick={toggleAtivo}
       >
         <Image
@@ -29,42 +36,16 @@ export default function CategoriaComponet({
           alt="Seta de categoria"
           className="w-6 h-6"
         />
-        <h2 className="text-xl font-bold ml-2">Entradas</h2>
+        <h2 className="text-xl font-bold ml-2">{nomeCategoria}</h2>
       </div>
       {isAtivo && (
         <ul className="list-none p-0">
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Salada Caesar</span>
-            <span className="text-gray-600">R$ 25,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Bruschetta de Tomate</span>
-            <span className="text-gray-600">R$ 20,00</span>
-          </li>
-          <li className="flex justify-between items-center mb-4">
-            <span>Carpaccio de Carne</span>
-            <span className="text-gray-600">R$ 30,00</span>
-          </li>
+          {itens.map((item, index) => (
+            <li key={index} className="flex justify-between items-center mb-4">
+              <span>{item.nome}</span>
+              <span className="text-gray-600">{item.preco}</span>
+            </li>
+          ))}
         </ul>
       )}
     </div>
