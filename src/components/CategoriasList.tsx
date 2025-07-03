@@ -6,34 +6,74 @@ export default function CategoriasList() {
       ativo: true,
       nome: "Entradas",
       itens: [
-        { nome: "Salada Caesar", preco: "R$ 25,00" },
-        { nome: "Bruschetta", preco: "R$ 15,00" },
-        { nome: "Batata Frita", preco: "R$ 10,00" },
+        {
+          nome: "Salada Caesar",
+          preco: "R$ 25,00",
+          descricao: "Alface, croutons e molho Caesar",
+        },
+        {
+          nome: "Bruschetta",
+          preco: "R$ 15,00",
+          descricao: "Pão italiano com tomate e manjericão",
+        },
+        {
+          nome: "Batata Frita",
+          preco: "R$ 10,00",
+          descricao: "Batatas fritas crocantes",
+        },
       ],
     },
     {
       ativo: true,
       nome: "Prato Principal",
       itens: [
-        { nome: "Bife à Parmegiana", preco: "R$ 35,00" },
-        { nome: "Frango Grelhado", preco: "R$ 30,00" },
+        {
+          nome: "Bife à Parmegiana",
+          preco: "R$ 35,00",
+          descricao: "Bife empanado com queijo e molho de tomate",
+        },
+        {
+          nome: "Frango Grelhado",
+          preco: "R$ 30,00",
+          descricao: "Frango grelhado com ervas finas",
+        },
       ],
     },
     {
       ativo: false,
       nome: "Sobremesas",
       itens: [
-        { nome: "Torta de Limão", preco: "R$ 12,00" },
-        { nome: "Pudim", preco: "R$ 8,00" },
+        {
+          nome: "Torta de Limão",
+          preco: "R$ 12,00",
+          descricao: "Torta de limão com merengue",
+        },
+        {
+          nome: "Pudim",
+          preco: "R$ 8,00",
+          descricao: "Pudim de leite condensado",
+        },
       ],
     },
     {
       ativo: false,
       nome: "Bebidas",
       itens: [
-        { nome: "Refrigerante", preco: "R$ 5,00" },
-        { nome: "Suco Natural", preco: "R$ 7,00" },
-        { nome: "Cerveja Artesanal", preco: "R$ 12,00" },
+        {
+          nome: "Refrigerante",
+          preco: "R$ 5,00",
+          descricao: "Refrigerante de cola",
+        },
+        {
+          nome: "Suco Natural",
+          preco: "R$ 7,00",
+          descricao: "Suco de laranja natural",
+        },
+        {
+          nome: "Cerveja Artesanal",
+          preco: "R$ 12,00",
+          descricao: "Cerveja artesanal local",
+        },
       ],
     },
   ];

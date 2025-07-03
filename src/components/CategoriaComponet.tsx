@@ -11,6 +11,7 @@ interface CategoriaComponentProps {
   itens: Array<{
     nome: string;
     preco: string;
+    descricao?: string;
   }>;
 }
 
@@ -36,14 +37,19 @@ export default function CategoriaComponet({
           alt="Seta de categoria"
           className="w-6 h-6"
         />
-        <h2 className="text-xl font-bold ml-2">{nomeCategoria}</h2>
+        <h2 className="text-xl font-bold ">{nomeCategoria}</h2>
       </div>
       {isAtivo && (
-        <ul className="list-none p-0">
+        <ul className="">
           {itens.map((item, index) => (
             <li key={index} className="flex justify-between items-center mb-4">
-              <span>{item.nome}</span>
-              <span className="text-gray-600">{item.preco}</span>
+              <div className="flex flex-col">
+                <span>{item.nome}</span>
+                <span className="text-gray-500 text-sm ml-2">
+                  ({item.descricao || "Sem descrição"})
+                </span>
+              </div>
+              <span className="text-gray-600 ">{item.preco}</span>
             </li>
           ))}
         </ul>

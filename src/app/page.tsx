@@ -9,7 +9,7 @@ import GraniteBackground from "../components/GraniteBackground";
 export default function Home() {
   return (
     <GraniteBackground>
-      <main className="flex flex-col items-center h-screen overflow-scroll text-gray-800">
+      <main className="flex flex-col items-center h-screen overflow-y-scroll overflow-x-hidden text-gray-800">
         <Image
           src={logo}
           alt="Logo do Cardápio Digital"
@@ -21,7 +21,6 @@ export default function Home() {
         </h1>
         <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
         <CategoriasList />
-
         <p className="text-sm mb-3 text-gray-600">
           Desenvolvido por{" "}
           <a
