@@ -22,10 +22,10 @@ export default function Home() {
         <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
         <CategoriasList />
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm mb-3 text-gray-600">
           Desenvolvido por{" "}
           <a
-            href="https://github.com/vinicius-pascoal"
+            href="https://www.instagram.com/vinicius_pascoal_q/?next=%2F"
             className="text-blue-500 hover:underline"
           >
             Vinicius Pascoal
