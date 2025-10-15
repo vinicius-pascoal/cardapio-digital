@@ -44,7 +44,34 @@ export default function CartModal() {
             <span className="font-semibold">{formatTotal(items)}</span>
           </div>
           <div className="flex justify-end items-center gap-3">
-            <button onClick={() => { /* aqui poderia enviar pedido */ }} className="px-4 py-2 bg-[#1e2939] text-white rounded font-medium">Pedir</button>
+            <button
+              onClick={() => {
+                const order = {
+                  id: Date.now(),
+                  items: items,
+                  total: formatTotal(items),
+                  createdAt: new Date().toISOString(),
+                };
+                try {
+                  const raw = localStorage.getItem("orders");
+                  const arr = raw ? JSON.parse(raw) : [];
+                  arr.push(order);
+                  localStorage.setItem("orders", JSON.stringify(arr));
+                } catch (e) {
+                  console.error(e);
+                }
+                // limpar carrinho e fechar
+                clear();
+                setOpen(false);
+                // notificar outras abas/componentes
+                window.dispatchEvent(new Event("orders-updated"));
+                // feedback simples
+                alert("Pedido enviado com sucesso!");
+              }}
+              className="px-4 py-2 bg-[#1e2939] text-white rounded font-medium"
+            >
+              Pedir
+            </button>
           </div>
         </div>
       </div>
