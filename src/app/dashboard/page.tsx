@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import logo from "../../img/logo.svg";
 import GraniteBackground from "../../components/GraniteBackground";
+import MenuTable from "../../components/MenuTable";
 
 function StatsCards() {
   const [ordersToday, setOrdersToday] = useState(0);
@@ -259,29 +260,33 @@ export default function DashboardPage() {
 
   return (
     <GraniteBackground>
-      <main className="flex flex-col items-center h-screen overflow-y-scroll overflow-x-hidden text-gray-800">
-        <Image
-          src={logo}
-          alt="Logo do Cardápio Digital"
-          className="w-28 h-28 mb-4 mt-10"
-          priority
-        />
+      <main className="flex flex-col items-start min-h-screen overflow-y-auto overflow-x-hidden text-gray-800">
         <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <div className="w-4/5 mb-6 border-gray-800 border-b-2 border-solid" />
-        <div className="w-full max-w-3xl px-4">
+        <div className="w-full mb-6 border-gray-800 border-b-2 border-solid" />
+        <div className="w-full px-8">
           <StatsCards />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-4 border rounded">
-              <h3 className="font-semibold mb-2">Adicionar item ao cardápio</h3>
-              <AddMenuItemForm />
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Criar nova categoria</h4>
-                <CreateCategoryForm />
-              </div>
+
+          {/* Top: tabela à esquerda e pedidos à direita */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <div className="p-6 border rounded w-full">
+              <h3 className="font-semibold mb-3">Itens do cardápio</h3>
+              <MenuTable />
             </div>
-            <div className="p-4 border rounded">
+            <div className="p-6 border rounded w-full">
               <h3 className="font-semibold mb-2">Pedidos</h3>
               <OrdersList />
+            </div>
+          </div>
+
+          {/* Bottom: controladores de cadastro */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <div className="p-6 border rounded w-full">
+              <h3 className="font-semibold mb-2">Cadastrar / Adicionar item</h3>
+              <AddMenuItemForm />
+            </div>
+            <div className="p-6 border rounded w-full">
+              <h3 className="font-semibold mb-2">Cadastrar categoria</h3>
+              <CreateCategoryForm />
             </div>
           </div>
           <div className="mt-4 flex gap-3">
