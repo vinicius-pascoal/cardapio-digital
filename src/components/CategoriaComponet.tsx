@@ -91,8 +91,12 @@ function ItemRow({ item }: { item: { nome: string; preco: string; descricao?: st
         <span className="text-gray-500 text-sm ml-2">({item.descricao || "Sem descrição"})</span>
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-gray-600 ">{item.preco}</span>
-        <button onClick={handleAdd} className="px-2 py-1 bg-green-600 text-white rounded text-sm">Adicionar</button>
+        <button
+          onClick={handleAdd}
+          className="text-[#1e2939] border border-[#1e2939] rounded-full px-3 py-1 font-medium hover:bg-[#1e2939]/10 transition focus:outline-none focus:ring-2 focus:ring-[#1e2939]/30"
+        >
+          {item.preco}
+        </button>
       </div>
     </li>
   );

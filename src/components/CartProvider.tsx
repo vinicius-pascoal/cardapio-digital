@@ -52,7 +52,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   function removeItem(index: number) {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+    setItems((prev) => {
+      const copy = [...prev];
+      if (!copy[index]) return prev;
+      copy[index].quantidade = Math.max(0, copy[index].quantidade - 1);
+      if (copy[index].quantidade <= 0) {
+        copy.splice(index, 1);
+      }
+      return copy;
+    });
   }
 
   function clear() {
