@@ -14,7 +14,7 @@ type Category = {
   itens: MenuItem[];
 };
 
-export default function MenuTable(): JSX.Element {
+export default function MenuTable(): React.ReactElement {
   const [menu, setMenu] = useState<Category[]>([]);
   const [query, setQuery] = useState("");
   const [filterCategoria, setFilterCategoria] = useState("");
