@@ -262,6 +262,13 @@ export default function DashboardPage() {
     <GraniteBackground>
       <main className="flex flex-col items-start min-h-screen overflow-y-auto overflow-x-hidden text-gray-800">
         <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+        <nav className="w-full mb-6">
+          <div className="w-full flex items-center justify-end gap-3 px-4 py-2 rounded">
+            <a href="/" className="px-3 py-2 border rounded">Ver cardápio</a>
+            <a href="/orders" className="px-3 py-2 bg-blue-600 text-white rounded">Ver pedidos</a>
+            <button onClick={handleLogout} className="px-3 py-2 bg-red-600 text-white rounded">Logout</button>
+          </div>
+        </nav>
         <div className="w-full mb-6 border-gray-800 border-b-2 border-solid" />
         <div className="w-full px-8">
           <StatsCards />
@@ -290,13 +297,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-3">
-            <button
-              onClick={handleLogout}
-              className="px-3 py-2 bg-red-600 text-white rounded"
-            >
-              Logout
-            </button>
-            <a href="/" className="px-3 py-2 border rounded">Ver cardápio</a>
+            {/* Espaço para ações adicionais se necessário */}
           </div>
         </div>
       </main>
