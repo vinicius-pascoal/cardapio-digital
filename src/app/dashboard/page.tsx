@@ -7,6 +7,7 @@ import Image from "next/image";
 import logo from "../../img/logo.svg";
 import GraniteBackground from "../../components/GraniteBackground";
 import MenuTable from "../../components/MenuTable";
+import { swalError, swalSuccess } from "../../lib/swal";
 
 function StatsCards() {
   const [ordersToday, setOrdersToday] = useState(0);
@@ -114,7 +115,7 @@ function AddMenuItemForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedCategoria) {
-      alert("Escolha uma categoria existente ou crie uma nova categoria abaixo.");
+      swalError("Escolha uma categoria", "Escolha uma categoria existente ou crie uma nova categoria abaixo.");
       return;
     }
     try {
@@ -122,15 +123,15 @@ function AddMenuItemForm() {
       const arr = raw ? JSON.parse(raw) : [];
       let cat = arr.find((c: any) => c.nome === selectedCategoria);
       if (!cat) {
-        alert("Categoria selecionada não encontrada. Atualize a lista ou crie a categoria.");
+        swalError("Categoria não encontrada", "Atualize a lista ou crie a categoria.");
         return;
       }
       cat.itens.push({ nome, preco, descricao });
       localStorage.setItem("menu_categorias", JSON.stringify(arr));
       window.dispatchEvent(new Event("menu-updated"));
       setNome(""); setPreco(""); setDescricao(""); setSelectedCategoria("");
-      alert("Item adicionado ao cardápio");
-    } catch (e) { console.error(e); alert("Erro ao salvar"); }
+      swalSuccess("Item adicionado", "Item adicionado ao cardápio com sucesso.");
+    } catch (e) { console.error(e); swalError("Erro", "Erro ao salvar"); }
   }
 
   return (
@@ -162,7 +163,7 @@ function CreateCategoryForm() {
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim()) {
-      alert("Informe o nome da categoria");
+      swalError("Campo vazio", "Informe o nome da categoria");
       return;
     }
     try {
@@ -170,7 +171,7 @@ function CreateCategoryForm() {
       const arr = raw ? JSON.parse(raw) : [];
       const exists = arr.find((c: any) => c.nome === nome);
       if (exists) {
-        alert("Categoria já existe");
+        swalError("Já existe", "Categoria já existe");
         return;
       }
       arr.push({ nome, ativo: true, itens: [] });
@@ -178,8 +179,8 @@ function CreateCategoryForm() {
       window.dispatchEvent(new Event("menu-updated"));
       setNome("");
       window.dispatchEvent(new CustomEvent("category-created", { detail: { nome } }));
-      alert("Categoria criada com sucesso");
-    } catch (e) { console.error(e); alert("Erro ao criar categoria"); }
+      swalSuccess("Categoria criada", "Categoria criada com sucesso");
+    } catch (e) { console.error(e); swalError("Erro", "Erro ao criar categoria"); }
   }
 
   return (

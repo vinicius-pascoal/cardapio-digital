@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "./CartProvider";
+import { swalSuccess } from "../lib/swal";
 
 export default function CartModal() {
   const { items, removeItem, clear, open, setOpen } = useCart();
@@ -66,7 +67,7 @@ export default function CartModal() {
                 // notificar outras abas/componentes
                 window.dispatchEvent(new Event("orders-updated"));
                 // feedback simples
-                alert("Pedido enviado com sucesso!");
+                swalSuccess("Pedido enviado", "Pedido enviado com sucesso!");
               }}
               className="px-4 py-2 bg-[#1e2939] text-white rounded font-medium"
             >

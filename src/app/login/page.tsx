@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import logo from "../../img/logo.svg";
 import GraniteBackground from "../../components/GraniteBackground";
+import { swalSuccess, swalError } from "../../lib/swal";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,13 +30,25 @@ export default function LoginPage() {
     setError("");
     // credenciais mock: admin / admin12345
     setTimeout(() => {
-      if (username === "admin" && password === "admin12345") {
-        localStorage.setItem("auth_token", "logged");
+      try {
+        if (username === "admin" && password === "admin12345") {
+          localStorage.setItem("auth_token", "logged");
+          setLoading(false);
+          // feedback e redirecionamento
+          try {
+            swalSuccess("Logado", "Você foi autenticado com sucesso").then(() => {
+              router.replace("/dashboard");
+            });
+          } catch {
+            router.replace("/dashboard");
+          }
+        } else {
+          setLoading(false);
+          setError("Usuário ou senha inválidos");
+        }
+      } catch (e) {
         setLoading(false);
-        router.push("/dashboard");
-      } else {
-        setLoading(false);
-        setError("Usuário ou senha inválidos");
+        setError("Erro ao autenticar");
       }
     }, 600);
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { swalError, swalSuccess, swalConfirm } from "../lib/swal";
 
 type MenuItem = {
   nome: string;
@@ -39,8 +40,9 @@ export default function MenuTable(): React.ReactElement {
     }
   }
 
-  function removeItem(categoryName: string, index: number) {
-    if (!confirm("Remover item do cardápio?")) return;
+  async function removeItem(categoryName: string, index: number) {
+    const res = await swalConfirm("Remover item", "Remover item do cardápio?");
+    if (!res.isConfirmed) return;
     try {
       const raw = localStorage.getItem("menu_categorias");
       const arr: Category[] = raw ? JSON.parse(raw) : [];
@@ -49,9 +51,10 @@ export default function MenuTable(): React.ReactElement {
       cat.itens.splice(index, 1);
       localStorage.setItem("menu_categorias", JSON.stringify(arr));
       window.dispatchEvent(new Event("menu-updated"));
+      swalSuccess("Removido", "Item removido do cardápio");
     } catch (e) {
       console.error(e);
-      alert("Erro ao remover item");
+      swalError("Erro", "Erro ao remover item");
     }
   }
 

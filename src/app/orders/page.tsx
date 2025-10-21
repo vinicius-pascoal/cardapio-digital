@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import GraniteBackground from "../../components/GraniteBackground";
+import { swalConfirm, swalSuccess, swalError } from "../../lib/swal";
 
 type OrderItem = {
   nome: string;
@@ -49,10 +51,16 @@ function OrdersPageContent() {
     saveOrders(next);
   }
 
-  function removeOrder(id: Order["id"]) {
-    if (!confirm("Remover este pedido? A ação não pode ser desfeita.")) return;
-    const next = orders.filter((o) => o.id !== id);
-    saveOrders(next);
+  async function removeOrder(id: Order["id"]) {
+    const res = await swalConfirm("Remover pedido", "Remover este pedido? A ação não pode ser desfeita.");
+    if (!res.isConfirmed) return;
+    try {
+      const next = orders.filter((o) => o.id !== id);
+      saveOrders(next);
+      swalSuccess("Removido", "Pedido removido com sucesso");
+    } catch (e) {
+      swalError("Erro", "Não foi possível remover o pedido");
+    }
   }
 
   const filtered = useMemo(() => {
@@ -108,7 +116,10 @@ function OrdersPageContent() {
   return (
     <div className="w-full max-w-6xl mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
+        <div className="flex flex-col items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
+          <Link href="/" className="px-3 py-1 border rounded text-sm bg-white hover:bg-gray-50 text-gray-700">← Voltar ao Dashboard</Link>
+        </div>
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-600">Total: <span className="font-semibold text-gray-900">{totals.count}</span></div>
           <div className="text-sm text-gray-600">Receita: <span className="font-semibold text-gray-900">R$ {totals.revenue.toFixed(2)}</span></div>
