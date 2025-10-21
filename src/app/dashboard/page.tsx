@@ -59,15 +59,15 @@ function StatsCards() {
 
   return (
     <div className="w-full mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="p-4 bg-white/60 backdrop-blur-md border border-gray-200 rounded shadow-sm">
+      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
         <div className="text-sm text-gray-500">Pedidos hoje</div>
         <div className="text-2xl font-bold text-[#1e2939]">{ordersToday}</div>
       </div>
-      <div className="p-4 bg-white/60 backdrop-blur-md border border-gray-200 rounded shadow-sm">
+      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
         <div className="text-sm text-gray-500">Pedidos este mês</div>
         <div className="text-2xl font-bold text-[#1e2939]">{ordersThisMonth}</div>
       </div>
-      <div className="p-4 bg-white/60 backdrop-blur-md border border-gray-200 rounded shadow-sm">
+      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
         <div className="text-sm text-gray-500">Prato mais pedido</div>
         {mostOrdered ? (
           <div className="text-lg font-semibold">{mostOrdered.nome} <span className="text-sm text-gray-600">({mostOrdered.quantidade})</span></div>
@@ -100,7 +100,6 @@ function AddMenuItemForm() {
     window.addEventListener("menu-updated", loadCats);
     function handleCreated(e: any) {
       if (e?.detail?.nome) {
-        // reload and select
         loadCats();
         setSelectedCategoria(e.detail.nome);
       }
@@ -178,7 +177,6 @@ function CreateCategoryForm() {
       localStorage.setItem("menu_categorias", JSON.stringify(arr));
       window.dispatchEvent(new Event("menu-updated"));
       setNome("");
-      // also dispatch a custom event so the AddMenuItemForm can select the new category
       window.dispatchEvent(new CustomEvent("category-created", { detail: { nome } }));
       alert("Categoria criada com sucesso");
     } catch (e) { console.error(e); alert("Erro ao criar categoria"); }
@@ -216,7 +214,7 @@ function OrdersList() {
       ) : (
         <ul className="space-y-2 max-h-56 overflow-y-auto">
           {orders.map((o) => (
-            <li key={o.id} className="p-2 border rounded">
+            <li key={o.id} className="p-2 border rounded bg-white/70">
               <div className="flex justify-between">
                 <div>
                   <div className="font-medium">Pedido #{o.id}</div>
@@ -260,44 +258,44 @@ export default function DashboardPage() {
 
   return (
     <GraniteBackground>
-      <main className="flex flex-col items-start min-h-screen overflow-y-auto overflow-x-hidden text-gray-800">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <nav className="w-full mb-6">
-          <div className="w-full flex items-center justify-end gap-3 px-4 py-2 rounded">
-            <a href="/" className="px-3 py-2 border rounded">Ver cardápio</a>
-            <a href="/orders" className="px-3 py-2 bg-blue-600 text-white rounded">Ver pedidos</a>
-            <button onClick={handleLogout} className="px-3 py-2 bg-red-600 text-white rounded">Logout</button>
-          </div>
-        </nav>
-        <div className="w-full mb-6 border-gray-800 border-b-2 border-solid" />
-        <div className="w-full px-8">
+      <main className="min-h-screen py-10 text-gray-800">
+        <div className="max-w-6xl mx-auto px-6">
+          <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-extrabold">Dashboard</h1>
+              <p className="text-gray-600 mt-1">Visão geral do cardápio, pedidos e controle rápido</p>
+            </div>
+
+            <nav className="flex items-center gap-3">
+              <a href="/" className="px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50">Ver cardápio</a>
+              <a href="/orders" className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">Ver pedidos</a>
+              <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700">Logout</button>
+            </nav>
+          </header>
+
           <StatsCards />
 
-          {/* Top: tabela à esquerda e pedidos à direita */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-            <div className="p-6 border rounded w-full">
-              <h3 className="font-semibold mb-3">Itens do cardápio</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 p-6 bg-white/60 backdrop-blur rounded-xl shadow-xl border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Itens do cardápio</h3>
               <MenuTable />
             </div>
-            <div className="p-6 border rounded w-full">
-              <h3 className="font-semibold mb-2">Pedidos</h3>
+
+            <aside className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-xl border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Pedidos recentes</h3>
               <OrdersList />
-            </div>
+            </aside>
           </div>
 
-          {/* Bottom: controladores de cadastro */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-            <div className="p-6 border rounded w-full">
-              <h3 className="font-semibold mb-2">Cadastrar / Adicionar item</h3>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-lg border border-gray-200">
+              <h4 className="font-semibold mb-3">Adicionar item ao cardápio</h4>
               <AddMenuItemForm />
             </div>
-            <div className="p-6 border rounded w-full">
-              <h3 className="font-semibold mb-2">Cadastrar categoria</h3>
+            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-lg border border-gray-200">
+              <h4 className="font-semibold mb-3">Criar nova categoria</h4>
               <CreateCategoryForm />
             </div>
-          </div>
-          <div className="mt-4 flex gap-3">
-            {/* Espaço para ações adicionais se necessário */}
           </div>
         </div>
       </main>

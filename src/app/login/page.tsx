@@ -48,7 +48,6 @@ export default function LoginPage() {
             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
               <Image src={logo} alt="Logo do Cardápio Digital" className="w-32 h-32 mb-4" priority />
               <h2 className="text-3xl font-bold mb-2">Bem-vindo de volta</h2>
-              <p className="text-gray-600">Entre com sua conta para acessar o painel</p>
             </div>
 
             <div className="w-full md:w-96">
