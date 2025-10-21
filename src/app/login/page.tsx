@@ -42,50 +42,57 @@ export default function LoginPage() {
 
   return (
     <GraniteBackground>
-      <main className="flex flex-col items-center h-screen overflow-y-scroll overflow-x-hidden text-gray-800">
-        <Image
-          src={logo}
-          alt="Logo do Cardápio Digital"
-          className="w-28 h-28 mb-4 mt-10"
-          priority
-        />
-        <h2 className="text-2xl font-bold mb-4">Entrar</h2>
-        <div className="w-4/5 mb-6 border-gray-800 border-b-2 border-solid" />
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-3 px-4">
-          <div>
-            <label className="block text-sm mb-1">Usuário</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="w-full border rounded px-3 py-2"
-            />
+      <main className="flex items-center justify-center min-h-screen px-4 text-gray-800">
+        <div className="w-full max-w-2xl">
+          <div className="flex flex-col md:flex-row items-center gap-8 p-6 md:p-10 bg-white/60 backdrop-blur-md rounded-xl shadow-xl border border-gray-200">
+            <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+              <Image src={logo} alt="Logo do Cardápio Digital" className="w-32 h-32 mb-4" priority />
+              <h2 className="text-3xl font-bold mb-2">Bem-vindo de volta</h2>
+              <p className="text-gray-600">Entre com sua conta para acessar o painel</p>
+            </div>
+
+            <div className="w-full md:w-96">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">Usuário</label>
+                  <input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Senha</label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center bg-[#1e2939] hover:bg-[#16202a] text-white px-4 py-2 rounded-md shadow"
+                    disabled={loading}
+                  >
+                    {loading ? "Entrando..." : "Entrar"}
+                  </button>
+                  <a href="#" className="text-sm text-gray-600 hover:underline">Voltar ao Cardápio</a>
+                </div>
+
+                {error && <p className="text-red-600 text-sm">{error}</p>}
+              </form>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm mb-1">Senha</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
-              disabled={loading}
-            >
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
-            <a href="/" className="text-sm text-gray-600 hover:underline">
-              Voltar ao Cardápio
-            </a>
-          </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-        </form>
+        </div>
       </main>
     </GraniteBackground>
   );
