@@ -35,41 +35,45 @@ function OrdersPageContent() {
         // Buscar pedidos da API
         const ordersData = await ordersAPI.list();
 
-        // Transformar para o formato esperado
-        const transformedOrders: Order[] = ordersData.map((o: Pedido) => {
-          const total = o.total || (o.items && Array.isArray(o.items)
-            ? o.items.reduce((sum, it) => {
-              const preco = it.prato?.preco || 0;
-              const precoNum = typeof preco === 'number' ? preco : parseFloat(String(preco).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-              return sum + (precoNum * (it.quantidade || 1));
+        // Transformar para o formato esperado, mapeando campos do backend
+        const transformedOrders: Order[] = ordersData.map((o: any) => {
+          // Mapeia campos do backend para o frontend
+          const items = (o.items || o.itens || []).map((it: any) => {
+            const prato = it.prato || {};
+            const preco = prato.preco;
+            let precoFormatado: string | undefined;
+            if (preco !== undefined && preco !== null) {
+              if (typeof preco === 'number') {
+                precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+              } else if (typeof preco === 'string') {
+                // Se vier como string numérica, formata
+                const n = parseFloat(preco.replace(/[^\d.,]/g, '').replace(',', '.'));
+                precoFormatado = isNaN(n) ? preco : `R$ ${n.toFixed(2).replace('.', ',')}`;
+              }
+            }
+            return {
+              nome: prato.nome || "Desconhecido",
+              quantidade: it.quantidade,
+              preco: precoFormatado,
+            };
+          });
+
+          // Calcular total
+          const total = o.total || (items && Array.isArray(items)
+            ? items.reduce((sum: number, it: any) => {
+              const preco = it.preco ? parseFloat(String(it.preco).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+              return sum + (preco * (it.quantidade || 1));
             }, 0)
             : 0);
 
           return {
             id: o.id,
-            createdAt: o.createdAt || new Date().toISOString(),
-            items: o.items?.map(it => {
-              const preco = it.prato?.preco as any;
-              let precoFormatado: string | undefined;
-
-              if (preco !== undefined && preco !== null) {
-                if (typeof preco === 'number') {
-                  precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
-                } else if (typeof preco === 'string') {
-                  precoFormatado = preco.startsWith('R$') ? preco : `R$ ${preco}`;
-                }
-              }
-
-              return {
-                nome: it.prato?.nome || "Desconhecido",
-                quantidade: it.quantidade,
-                preco: precoFormatado,
-              };
-            }) || [],
+            createdAt: o.createdAt || o.criadoEm || new Date().toISOString(),
+            items,
             total: typeof total === 'number'
               ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
               : total,
-            status: "pending", // Backend pode não ter status, usar padrão
+            status: o.status || "pending", // Backend pode não ter status
           };
         });
 
