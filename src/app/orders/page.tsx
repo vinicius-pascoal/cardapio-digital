@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import GraniteBackground from "../../components/GraniteBackground";
 import { swalConfirm, swalSuccess, swalError } from "../../lib/swal";
+import { ordersAPI, type Pedido } from "../../lib/api";
 
 type OrderItem = {
   nome: string;
@@ -25,14 +26,65 @@ function OrdersPageContent() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function load() {
+    async function load() {
       try {
-        const raw = localStorage.getItem("orders");
-        setOrders(raw ? JSON.parse(raw) : []);
-      } catch {
-        setOrders([]);
+        setLoading(true);
+        // Buscar pedidos da API
+        const ordersData = await ordersAPI.list();
+
+        // Transformar para o formato esperado
+        const transformedOrders: Order[] = ordersData.map((o: Pedido) => {
+          const total = o.total || (o.items && Array.isArray(o.items)
+            ? o.items.reduce((sum, it) => {
+              const preco = it.prato?.preco || 0;
+              const precoNum = typeof preco === 'number' ? preco : parseFloat(String(preco).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+              return sum + (precoNum * (it.quantidade || 1));
+            }, 0)
+            : 0);
+
+          return {
+            id: o.id,
+            createdAt: o.createdAt || new Date().toISOString(),
+            items: o.items?.map(it => {
+              const preco = it.prato?.preco as any;
+              let precoFormatado: string | undefined;
+
+              if (preco !== undefined && preco !== null) {
+                if (typeof preco === 'number') {
+                  precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+                } else if (typeof preco === 'string') {
+                  precoFormatado = preco.startsWith('R$') ? preco : `R$ ${preco}`;
+                }
+              }
+
+              return {
+                nome: it.prato?.nome || "Desconhecido",
+                quantidade: it.quantidade,
+                preco: precoFormatado,
+              };
+            }) || [],
+            total: typeof total === 'number'
+              ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+              : total,
+            status: "pending", // Backend pode não ter status, usar padrão
+          };
+        });
+
+        setOrders(transformedOrders);
+      } catch (err) {
+        console.error('Erro ao carregar pedidos:', err);
+        // Fallback para localStorage
+        try {
+          const raw = localStorage.getItem("orders");
+          setOrders(raw ? JSON.parse(raw) : []);
+        } catch {
+          setOrders([]);
+        }
+      } finally {
+        setLoading(false);
       }
     }
     load();
@@ -55,11 +107,22 @@ function OrdersPageContent() {
     const res = await swalConfirm("Remover pedido", "Remover este pedido? A ação não pode ser desfeita.");
     if (!res.isConfirmed) return;
     try {
+      // Tentar remover via API
+      await ordersAPI.delete(Number(id));
       const next = orders.filter((o) => o.id !== id);
-      saveOrders(next);
+      setOrders(next);
+      window.dispatchEvent(new Event("orders-updated"));
       swalSuccess("Removido", "Pedido removido com sucesso");
-    } catch (e) {
-      swalError("Erro", "Não foi possível remover o pedido");
+    } catch (err) {
+      console.error('Erro ao remover pedido:', err);
+      // Fallback: remover do localStorage
+      try {
+        const next = orders.filter((o) => o.id !== id);
+        saveOrders(next);
+        swalSuccess("Removido", "Pedido removido localmente");
+      } catch (e) {
+        swalError("Erro", "Não foi possível remover o pedido");
+      }
     }
   }
 
@@ -142,7 +205,9 @@ function OrdersPageContent() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-600">Carregando pedidos...</p>
+      ) : filtered.length === 0 ? (
         <p className="text-gray-600">Nenhum pedido encontrado com os filtros aplicados.</p>
       ) : (
         <div className="space-y-4">
