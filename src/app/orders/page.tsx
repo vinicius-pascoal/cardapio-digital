@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import GraniteBackground from "../../components/GraniteBackground";
 import { swalConfirm, swalSuccess, swalError } from "../../lib/swal";
+import { ordersAPI, type Pedido } from "../../lib/api";
 
 type OrderItem = {
   nome: string;
@@ -25,14 +26,69 @@ function OrdersPageContent() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function load() {
+    async function load() {
       try {
-        const raw = localStorage.getItem("orders");
-        setOrders(raw ? JSON.parse(raw) : []);
-      } catch {
-        setOrders([]);
+        setLoading(true);
+        // Buscar pedidos da API
+        const ordersData = await ordersAPI.list();
+
+        // Transformar para o formato esperado, mapeando campos do backend
+        const transformedOrders: Order[] = ordersData.map((o: any) => {
+          // Mapeia campos do backend para o frontend
+          const items = (o.items || o.itens || []).map((it: any) => {
+            const prato = it.prato || {};
+            const preco = prato.preco;
+            let precoFormatado: string | undefined;
+            if (preco !== undefined && preco !== null) {
+              if (typeof preco === 'number') {
+                precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+              } else if (typeof preco === 'string') {
+                // Se vier como string numérica, formata
+                const n = parseFloat(preco.replace(/[^\d.,]/g, '').replace(',', '.'));
+                precoFormatado = isNaN(n) ? preco : `R$ ${n.toFixed(2).replace('.', ',')}`;
+              }
+            }
+            return {
+              nome: prato.nome || "Desconhecido",
+              quantidade: it.quantidade,
+              preco: precoFormatado,
+            };
+          });
+
+          // Calcular total
+          const total = o.total || (items && Array.isArray(items)
+            ? items.reduce((sum: number, it: any) => {
+              const preco = it.preco ? parseFloat(String(it.preco).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+              return sum + (preco * (it.quantidade || 1));
+            }, 0)
+            : 0);
+
+          return {
+            id: o.id,
+            createdAt: o.createdAt || o.criadoEm || new Date().toISOString(),
+            items,
+            total: typeof total === 'number'
+              ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+              : total,
+            status: o.status || "pending", // Backend pode não ter status
+          };
+        });
+
+        setOrders(transformedOrders);
+      } catch (err) {
+        console.error('Erro ao carregar pedidos:', err);
+        // Fallback para localStorage
+        try {
+          const raw = localStorage.getItem("orders");
+          setOrders(raw ? JSON.parse(raw) : []);
+        } catch {
+          setOrders([]);
+        }
+      } finally {
+        setLoading(false);
       }
     }
     load();
@@ -55,11 +111,22 @@ function OrdersPageContent() {
     const res = await swalConfirm("Remover pedido", "Remover este pedido? A ação não pode ser desfeita.");
     if (!res.isConfirmed) return;
     try {
+      // Tentar remover via API
+      await ordersAPI.delete(Number(id));
       const next = orders.filter((o) => o.id !== id);
-      saveOrders(next);
+      setOrders(next);
+      window.dispatchEvent(new Event("orders-updated"));
       swalSuccess("Removido", "Pedido removido com sucesso");
-    } catch (e) {
-      swalError("Erro", "Não foi possível remover o pedido");
+    } catch (err) {
+      console.error('Erro ao remover pedido:', err);
+      // Fallback: remover do localStorage
+      try {
+        const next = orders.filter((o) => o.id !== id);
+        saveOrders(next);
+        swalSuccess("Removido", "Pedido removido localmente");
+      } catch (e) {
+        swalError("Erro", "Não foi possível remover o pedido");
+      }
     }
   }
 
@@ -142,7 +209,9 @@ function OrdersPageContent() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-600">Carregando pedidos...</p>
+      ) : filtered.length === 0 ? (
         <p className="text-gray-600">Nenhum pedido encontrado com os filtros aplicados.</p>
       ) : (
         <div className="space-y-4">

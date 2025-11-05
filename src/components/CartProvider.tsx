@@ -2,11 +2,16 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type CartItem = { nome: string; preco: string; quantidade: number };
+type CartItem = {
+  id?: number; // ID do prato (opcional para compatibilidade) 
+  nome: string;
+  preco: string;
+  quantidade: number
+};
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (item: { nome: string; preco: string }) => void;
+  addItem: (item: { id?: number; nome: string; preco: string }) => void;
   removeItem: (index: number) => void;
   clear: () => void;
   count: number;
@@ -39,7 +44,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { }
   }, [items]);
 
-  function addItem(item: { nome: string; preco: string }) {
+  function addItem(item: { id?: number; nome: string; preco: string }) {
     setItems((prev) => {
       const idx = prev.findIndex((p) => p.nome === item.nome);
       if (idx >= 0) {

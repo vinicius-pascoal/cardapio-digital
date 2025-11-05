@@ -1,7 +1,8 @@
 "use client";
 
 import { useCart } from "./CartProvider";
-import { swalSuccess } from "../lib/swal";
+import { swalSuccess, swalError } from "../lib/swal";
+import { ordersAPI } from "../lib/api";
 
 export default function CartModal() {
   const { items, removeItem, clear, open, setOpen } = useCart();
@@ -46,28 +47,48 @@ export default function CartModal() {
           </div>
           <div className="flex justify-end items-center gap-3">
             <button
-              onClick={() => {
-                const order = {
-                  id: Date.now(),
-                  items: items,
-                  total: formatTotal(items),
-                  createdAt: new Date().toISOString(),
-                };
+              onClick={async () => {
                 try {
-                  const raw = localStorage.getItem("orders");
-                  const arr = raw ? JSON.parse(raw) : [];
-                  arr.push(order);
-                  localStorage.setItem("orders", JSON.stringify(arr));
-                } catch (e) {
-                  console.error(e);
+                  // Preparar itens para a API
+                  // Verificar se temos IDs dos pratos (se foram salvos no item)
+                  const itemsParaAPI = items.map(it => ({
+                    pratoId: it.id || 0, // Se não tiver ID, usar 0 (precisará ajustar)
+                    quantidade: it.quantidade
+                  }));
+
+                  // Verificar se todos os itens têm ID válido
+                  const temIdInvalido = itemsParaAPI.some(it => it.pratoId === 0);
+
+                  if (temIdInvalido) {
+                    // Fallback: salvar no localStorage se não tiver IDs (modo offline)
+                    const order = {
+                      id: Date.now(),
+                      items: items,
+                      total: formatTotal(items),
+                      createdAt: new Date().toISOString(),
+                    };
+                    const raw = localStorage.getItem("orders");
+                    const arr = raw ? JSON.parse(raw) : [];
+                    arr.push(order);
+                    localStorage.setItem("orders", JSON.stringify(arr));
+
+                    clear();
+                    setOpen(false);
+                    window.dispatchEvent(new Event("orders-updated"));
+                    swalSuccess("Pedido salvo localmente", "Pedido salvo! (Modo offline)");
+                  } else {
+                    // Criar pedido via API
+                    await ordersAPI.create({ items: itemsParaAPI });
+
+                    clear();
+                    setOpen(false);
+                    window.dispatchEvent(new Event("orders-updated"));
+                    swalSuccess("Pedido enviado", "Pedido enviado com sucesso!");
+                  }
+                } catch (error) {
+                  console.error('Erro ao criar pedido:', error);
+                  swalError("Erro", "Erro ao enviar pedido. Tente novamente.");
                 }
-                // limpar carrinho e fechar
-                clear();
-                setOpen(false);
-                // notificar outras abas/componentes
-                window.dispatchEvent(new Event("orders-updated"));
-                // feedback simples
-                swalSuccess("Pedido enviado", "Pedido enviado com sucesso!");
               }}
               className="px-4 py-2 bg-[#1e2939] text-white rounded font-medium"
             >

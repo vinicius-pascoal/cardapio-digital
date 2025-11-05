@@ -10,6 +10,7 @@ interface CategoriaComponentProps {
   ativo?: boolean;
   nomeCategoria: string;
   itens: Array<{
+    id?: number;
     nome: string;
     preco: string;
     descricao?: string;
@@ -51,7 +52,7 @@ export default function CategoriaComponet({
   );
 }
 
-function ItemRow({ item }: { item: { nome: string; preco: string; descricao?: string } }) {
+function ItemRow({ item }: { item: { id?: number; nome: string; preco: string; descricao?: string } }) {
   const { addItem } = useCart();
 
   function animateToCart(e: React.MouseEvent) {
@@ -81,7 +82,7 @@ function ItemRow({ item }: { item: { nome: string; preco: string; descricao?: st
 
   function handleAdd(e: React.MouseEvent) {
     animateToCart(e);
-    addItem({ nome: item.nome, preco: item.preco });
+    addItem({ id: item.id, nome: item.nome, preco: item.preco });
   }
 
   return (

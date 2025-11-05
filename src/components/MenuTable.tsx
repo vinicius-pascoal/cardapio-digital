@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { swalError, swalSuccess, swalConfirm } from "../lib/swal";
+import { categoriesAPI, dishesAPI, type Categoria, type Prato } from "../lib/api";
 
 type MenuItem = {
   nome: string;
@@ -30,13 +31,55 @@ export default function MenuTable(): React.ReactElement {
     return () => window.removeEventListener("menu-updated", onUpdated);
   }, []);
 
-  function load() {
+  async function load() {
     try {
-      const raw = localStorage.getItem("menu_categorias");
-      const arr = raw ? JSON.parse(raw) : [];
-      setMenu(arr);
-    } catch (e) {
-      setMenu([]);
+      // Buscar da API
+      const [categoriasData, pratosData] = await Promise.all([
+        categoriesAPI.list(),
+        dishesAPI.list(),
+      ]);
+
+      // Agrupar pratos por categoria
+      const menuFormatted = categoriasData.map((cat: Categoria) => {
+        const pratosDaCategoria = pratosData
+          .filter((p: Prato) => p.categoriaId === cat.id)
+          .map((p: Prato) => {
+            const preco = p.preco as any;
+            let precoFormatado: string;
+
+            if (typeof preco === 'number') {
+              precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+            } else if (typeof preco === 'string') {
+              precoFormatado = preco.startsWith('R$') ? preco : `R$ ${preco}`;
+            } else {
+              precoFormatado = 'R$ 0,00';
+            }
+
+            return {
+              nome: p.nome,
+              preco: precoFormatado,
+              descricao: p.descricao || '',
+            };
+          });
+
+        return {
+          nome: cat.nome,
+          ativo: true,
+          itens: pratosDaCategoria,
+        };
+      });
+
+      setMenu(menuFormatted);
+    } catch (err) {
+      console.error('Erro ao carregar menu da API:', err);
+      // Fallback para localStorage
+      try {
+        const raw = localStorage.getItem("menu_categorias");
+        const arr = raw ? JSON.parse(raw) : [];
+        setMenu(arr);
+      } catch (e) {
+        setMenu([]);
+      }
     }
   }
 
