@@ -3,8 +3,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import GraniteBackground from "../../components/GraniteBackground";
-import { swalConfirm, swalSuccess, swalError } from "../../lib/swal";
+import { swalConfirm, swalSuccess, swalError, swalInfo } from "../../lib/swal";
 import { ordersAPI, type Pedido } from "../../lib/api";
+import { useOrdersSSE } from "../../hooks/useOrdersSSE";
 
 type OrderItem = {
   nome: string;
@@ -28,55 +29,86 @@ function OrdersPageContent() {
   const [dateTo, setDateTo] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
+  // Função auxiliar para transformar pedido do backend para o formato do frontend
+  const transformOrder = (o: any): Order => {
+    const items = (o.items || o.itens || []).map((it: any) => {
+      const prato = it.prato || {};
+      const preco = prato.preco;
+      let precoFormatado: string | undefined;
+      if (preco !== undefined && preco !== null) {
+        if (typeof preco === 'number') {
+          precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
+        } else if (typeof preco === 'string') {
+          const n = parseFloat(preco.replace(/[^\d.,]/g, '').replace(',', '.'));
+          precoFormatado = isNaN(n) ? preco : `R$ ${n.toFixed(2).replace('.', ',')}`;
+        }
+      }
+      return {
+        nome: prato.nome || "Desconhecido",
+        quantidade: it.quantidade,
+        preco: precoFormatado,
+      };
+    });
+
+    const total = o.total || (items && Array.isArray(items)
+      ? items.reduce((sum: number, it: any) => {
+        const preco = it.preco ? parseFloat(String(it.preco).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+        return sum + (preco * (it.quantidade || 1));
+      }, 0)
+      : 0);
+
+    return {
+      id: o.id,
+      createdAt: o.createdAt || o.criadoEm || new Date().toISOString(),
+      items,
+      total: typeof total === 'number'
+        ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+        : total,
+      status: o.status || "pending",
+    };
+  };
+
+  // SSE: Conectar ao servidor para receber atualizações em tempo real
+  useOrdersSSE({
+    onNewOrder: (newOrder) => {
+      console.log('Novo pedido recebido via SSE:', newOrder);
+      const transformed = transformOrder(newOrder);
+      setOrders((prev) => [...prev, transformed]);
+
+      // Mostrar notificação
+      swalInfo(
+        `Novo Pedido #${newOrder.id}`,
+        `${transformed.items.length} ${transformed.items.length === 1 ? 'item' : 'itens'} - ${transformed.total}`
+      );
+
+      // Atualizar localStorage e disparar evento
+      window.dispatchEvent(new Event("orders-updated"));
+    },
+    onOrderUpdate: (updatedOrder) => {
+      console.log('Pedido atualizado via SSE:', updatedOrder);
+      const transformed = transformOrder(updatedOrder);
+      setOrders((prev) =>
+        prev.map((o) => (o.id === updatedOrder.id ? transformed : o))
+      );
+      window.dispatchEvent(new Event("orders-updated"));
+    },
+    onOrderDelete: (orderId) => {
+      console.log('Pedido deletado via SSE:', orderId);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      window.dispatchEvent(new Event("orders-updated"));
+    },
+    onError: (error) => {
+      console.error('Erro na conexão SSE:', error);
+    },
+    enabled: true, // Sempre habilitado na página de pedidos
+  });
+
   useEffect(() => {
     async function load() {
       try {
         setLoading(true);
-        // Buscar pedidos da API
         const ordersData = await ordersAPI.list();
-
-        // Transformar para o formato esperado, mapeando campos do backend
-        const transformedOrders: Order[] = ordersData.map((o: any) => {
-          // Mapeia campos do backend para o frontend
-          const items = (o.items || o.itens || []).map((it: any) => {
-            const prato = it.prato || {};
-            const preco = prato.preco;
-            let precoFormatado: string | undefined;
-            if (preco !== undefined && preco !== null) {
-              if (typeof preco === 'number') {
-                precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
-              } else if (typeof preco === 'string') {
-                // Se vier como string numérica, formata
-                const n = parseFloat(preco.replace(/[^\d.,]/g, '').replace(',', '.'));
-                precoFormatado = isNaN(n) ? preco : `R$ ${n.toFixed(2).replace('.', ',')}`;
-              }
-            }
-            return {
-              nome: prato.nome || "Desconhecido",
-              quantidade: it.quantidade,
-              preco: precoFormatado,
-            };
-          });
-
-          // Calcular total
-          const total = o.total || (items && Array.isArray(items)
-            ? items.reduce((sum: number, it: any) => {
-              const preco = it.preco ? parseFloat(String(it.preco).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
-              return sum + (preco * (it.quantidade || 1));
-            }, 0)
-            : 0);
-
-          return {
-            id: o.id,
-            createdAt: o.createdAt || o.criadoEm || new Date().toISOString(),
-            items,
-            total: typeof total === 'number'
-              ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-              : total,
-            status: o.status || "pending", // Backend pode não ter status
-          };
-        });
-
+        const transformedOrders: Order[] = ordersData.map(transformOrder);
         setOrders(transformedOrders);
       } catch (err) {
         console.error('Erro ao carregar pedidos:', err);
