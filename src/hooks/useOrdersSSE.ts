@@ -26,7 +26,8 @@ export function useOrdersSSE({
   const baseReconnectDelay = 1000; // 1 segundo
 
   const connect = useCallback(() => {
-    if (!enabled) return;
+    // Evita executar em SSR / build (prerender) onde window/EventSource não existem
+    if (!enabled || typeof window === 'undefined' || typeof EventSource === 'undefined') return;
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const sseUrl = `${apiUrl}/api/orders/stream`;
@@ -115,9 +116,17 @@ export function useOrdersSSE({
   }, []);
 
   useEffect(() => {
-    connect();
+    // Hook só conecta no cliente
+    if (typeof window !== 'undefined') {
+      connect();
+    }
     return () => disconnect();
   }, [connect, disconnect]);
+
+  // Evitar referência direta à classe EventSource em ambiente SSR
+  const isConnected = typeof window !== 'undefined'
+    && typeof EventSource !== 'undefined'
+    && eventSourceRef.current?.readyState === 1; // 1 = OPEN
 
   return {
     disconnect,
@@ -126,6 +135,6 @@ export function useOrdersSSE({
       reconnectAttemptsRef.current = 0;
       connect();
     },
-    isConnected: eventSourceRef.current?.readyState === EventSource.OPEN,
+    isConnected,
   };
 }
