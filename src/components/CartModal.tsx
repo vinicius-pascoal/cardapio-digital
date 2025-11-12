@@ -114,10 +114,28 @@ export default function CartModal() {
 }
 
 function formatTotal(items: { nome: string; preco: string; quantidade: number }[]) {
-  // preços no formato 'R$ 12,00' ou 'R$ 5,00'
+  // Normaliza strings de preço que podem vir em formatos diferentes:
+  // - 'R$ 12,50' -> 12.5
+  // - '12.50' (ponto decimal) -> 12.5
+  // - '1.234,56' (milhares com ponto, decimal com vírgula) -> 1234.56
+  function parsePrice(preco: string): number {
+    if (!preco) return 0;
+    // manter somente dígitos, ponto, vírgula e traço
+    const s = String(preco).replace(/[^0-9.,-]/g, "");
+    if (s.indexOf('.') !== -1 && s.indexOf(',') !== -1) {
+      // Assume ponto como separador de milhares e vírgula como decimal
+      const cleaned = s.replace(/\./g, '').replace(',', '.');
+      return parseFloat(cleaned) || 0;
+    }
+    if (s.indexOf(',') !== -1) {
+      return parseFloat(s.replace(',', '.')) || 0;
+    }
+    return parseFloat(s) || 0;
+  }
+
   const total = items.reduce((sum, it) => {
-    const numeric = parseFloat(it.preco.replace(/[R$\s\.]/g, "").replace(",", "."));
-    return sum + numeric * it.quantidade;
+    const numeric = parsePrice(it.preco);
+    return sum + numeric * (it.quantidade || 0);
   }, 0);
   return total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }

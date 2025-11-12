@@ -44,15 +44,41 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { }
   }, [items]);
 
+  // Evita incrementos duplicados rápidos (por cliques duplos ou eventos duplicados)
+  // Mapa simples em memória: chave = item.nome (ou id quando disponível)
+  const lastAddTimestamps = React.useRef<Record<string, number>>({});
+
   function addItem(item: { id?: number; nome: string; preco: string }) {
+    const key = item.id != null ? String(item.id) : String(item.nome).trim().toLowerCase();
+    const now = Date.now();
+    const last = lastAddTimestamps.current[key] || 0;
+    // se o último add foi há menos de 300ms, ignorar (evita duplo incremento)
+    if (now - last < 300) {
+      lastAddTimestamps.current[key] = now;
+      return;
+    }
+    lastAddTimestamps.current[key] = now;
     setItems((prev) => {
-      const idx = prev.findIndex((p) => p.nome === item.nome);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx].quantidade += 1;
-        return copy;
+      // Consolidar possíveis entradas duplicadas existentes e somar quantidades
+      const map = new Map<string, CartItem>();
+      for (const p of prev) {
+        const pKey = p.id != null ? String(p.id) : String(p.nome).trim().toLowerCase();
+        const existing = map.get(pKey);
+        if (existing) {
+          existing.quantidade = (existing.quantidade || 0) + (p.quantidade || 0);
+        } else {
+          map.set(pKey, { ...p, quantidade: p.quantidade || 0 });
+        }
       }
-      return [...prev, { ...item, quantidade: 1 }];
+
+      const existing = map.get(key);
+      if (existing) {
+        existing.quantidade = (existing.quantidade || 0) + 1;
+      } else {
+        map.set(key, { id: item.id, nome: item.nome, preco: item.preco, quantidade: 1 });
+      }
+
+      return Array.from(map.values());
     });
   }
 
