@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="w-full max-w-2xl">
           <div className="flex flex-col md:flex-row items-center gap-8 p-6 md:p-10 bg-white/60 backdrop-blur-md rounded-xl shadow-xl border border-gray-200">
             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-              <Image src={logo} alt="Logo do Cardápio Digital" className="w-32 h-32 mb-4" priority />
+              <Image src={logo} alt="Logo do Cardápio Digital" className="w-48 h-48 mb-4" priority />
               <h2 className="text-3xl font-bold mb-2">Bem-vindo de volta</h2>
             </div>
 

@@ -15,12 +15,9 @@ export default function Home() {
         <Image
           src={logo}
           alt="Logo do Cardápio Digital"
-          className="w-32 h-32 mb-6 mt-10"
+          className="w-3xs h-3xs"
           priority
         />
-        <h1 className="text-2xl font-bold mb-4 ">
-          Bem-vindo ao Cardápio Digital
-        </h1>
         <div className="w-4/5 mb-8 border-gray-800 border-b-4 border-solid" />
         <CategoriasList />
       </main>
