@@ -1,11 +1,19 @@
 "use client";
 
 import { useCart } from "./CartProvider";
+import { useState, useRef, useEffect } from "react";
 import { swalSuccess, swalError, swalConfirm } from "../lib/swal";
 import { ordersAPI } from "../lib/api";
 
 export default function CartModal() {
   const { items, removeItem, clear, open, setOpen } = useCart();
+  const [submitting, setSubmitting] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   if (!open) return null;
 
@@ -54,12 +62,15 @@ export default function CartModal() {
                 swalSuccess('Carrinho limpo', 'O carrinho foi esvaziado.');
               }}
               className="px-3 py-2 bg-red-100 text-red-700 rounded font-medium"
+              disabled={submitting}
             >
               Limpar carrinho
             </button>
 
             <button
               onClick={async () => {
+                if (submitting) return;
+                setSubmitting(true);
                 try {
                   // Preparar itens para a API
                   // Verificar se temos IDs dos pratos (se foram salvos no item)
@@ -85,6 +96,7 @@ export default function CartModal() {
                     localStorage.setItem("orders", JSON.stringify(arr));
 
                     clear();
+                    if (mountedRef.current) setSubmitting(false);
                     setOpen(false);
                     window.dispatchEvent(new Event("orders-updated"));
                     swalSuccess("Pedido salvo localmente", "Pedido salvo! (Modo offline)");
@@ -93,18 +105,31 @@ export default function CartModal() {
                     await ordersAPI.create({ items: itemsParaAPI });
 
                     clear();
+                    if (mountedRef.current) setSubmitting(false);
                     setOpen(false);
                     window.dispatchEvent(new Event("orders-updated"));
                     swalSuccess("Pedido enviado", "Pedido enviado com sucesso!");
                   }
                 } catch (error) {
                   console.error('Erro ao criar pedido:', error);
+                  if (mountedRef.current) setSubmitting(false);
                   swalError("Erro", "Erro ao enviar pedido. Tente novamente.");
                 }
               }}
-              className="px-4 py-2 bg-[#1e2939] text-white rounded font-medium"
+              className={`px-4 py-2 ${submitting ? 'bg-gray-400' : 'bg-[#1e2939]'} text-white rounded font-medium`}
+              disabled={submitting}
             >
-              Pedir
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  Enviando...
+                </span>
+              ) : (
+                'Pedir'
+              )}
             </button>
           </div>
         </div>
