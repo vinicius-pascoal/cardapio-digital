@@ -6,7 +6,7 @@ import { swalSuccess, swalError, swalConfirm } from "../lib/swal";
 import { ordersAPI } from "../lib/api";
 
 export default function CartModal() {
-  const { items, removeItem, clear, open, setOpen } = useCart();
+  const { items, removeItem, addItem, clear, open, setOpen } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const mountedRef = useRef(true);
 
@@ -39,10 +39,24 @@ export default function CartModal() {
               <li key={idx} className="flex justify-between items-center">
                 <div>
                   <div className="font-medium text-[#1e2939]">{it.nome}</div>
-                  <div className="text-sm text-gray-500">{it.preco} x {it.quantidade}</div>
+                  <div className="text-sm text-gray-500">{it.preco}</div>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => removeItem(idx)} className="text-sm text-red-600">Remover 1</button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => removeItem(idx)}
+                    aria-label={`Diminuir ${it.nome}`}
+                    className="px-2 py-1 bg-gray-100 rounded text-gray-800 hover:bg-gray-200"
+                  >
+                    −
+                  </button>
+                  <div className="px-2 text-sm text-gray-800">{it.quantidade}</div>
+                  <button
+                    onClick={() => addItem({ id: it.id, nome: it.nome, preco: it.preco })}
+                    aria-label={`Aumentar ${it.nome}`}
+                    className="px-2 py-1 bg-gray-100 rounded text-gray-800 hover:bg-gray-200"
+                  >
+                    +
+                  </button>
                 </div>
               </li>
             ))}
