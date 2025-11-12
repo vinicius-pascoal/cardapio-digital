@@ -29,17 +29,18 @@ export default function CategoriaComponet({
   };
 
   return (
-    <div className="cursor-pointer w-4/5  p-4 mb-6">
+    <div className="cursor-pointer w-4/5 p-4 mb-6">
       <div
-        className="flex justify-between items-center mb-4 "
+        className="flex justify-end items-center mb-4 gap-2"
         onClick={toggleAtivo}
       >
+        {/* Seta ao lado do nome, nome alinhado à direita */}
         <Image
           src={isAtivo ? setaBaixo : setaDireita}
           alt="Seta de categoria"
           className="w-6 h-6"
         />
-        <h2 className="text-xl font-bold ">{nomeCategoria}</h2>
+        <h2 className="text-xl font-bold text-right">{nomeCategoria}</h2>
       </div>
       {isAtivo && (
         <ul className="">

@@ -38,12 +38,23 @@ export interface Pedido {
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const url = `${API_URL}${endpoint}`;
 
+  const method = (options.method || 'GET').toUpperCase();
+  const hasBody = options.body !== undefined && options.body !== null;
+
+  // Definir headers sem forçar Content-Type para requisições que não enviam body.
+  // Content-Type: application/json em GET/DELETE sem body causa preflight desnecessário
+  const headers: Record<string, string> = {
+    ...((options.headers as Record<string, string>) || {}),
+  };
+
+  if (hasBody || ['POST', 'PUT', 'PATCH'].includes(method)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const config: RequestInit = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    method,
+    headers,
   };
 
   const response = await fetch(url, config);

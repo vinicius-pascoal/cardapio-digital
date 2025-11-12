@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "./CartProvider";
-import { swalSuccess, swalError } from "../lib/swal";
+import { swalSuccess, swalError, swalConfirm } from "../lib/swal";
 import { ordersAPI } from "../lib/api";
 
 export default function CartModal() {
@@ -46,6 +46,18 @@ export default function CartModal() {
             <span className="font-semibold">{formatTotal(items)}</span>
           </div>
           <div className="flex justify-end items-center gap-3">
+            <button
+              onClick={async () => {
+                const res = await swalConfirm('Limpar carrinho', 'Deseja realmente limpar todo o carrinho?');
+                if (!res.isConfirmed) return;
+                clear();
+                swalSuccess('Carrinho limpo', 'O carrinho foi esvaziado.');
+              }}
+              className="px-3 py-2 bg-red-100 text-red-700 rounded font-medium"
+            >
+              Limpar carrinho
+            </button>
+
             <button
               onClick={async () => {
                 try {
