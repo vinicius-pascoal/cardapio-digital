@@ -240,8 +240,8 @@ export default function AnalyticsPage() {
               <button
                 onClick={() => setViewPeriod("week")}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${viewPeriod === "week"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                   }`}
               >
                 Última Semana
@@ -249,8 +249,8 @@ export default function AnalyticsPage() {
               <button
                 onClick={() => setViewPeriod("month")}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${viewPeriod === "month"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                   }`}
               >
                 Último Mês
@@ -460,8 +460,8 @@ export default function AnalyticsPage() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ nome, quantidade }) =>
-                      `${nome}: ${quantidade}`
+                    label={(entry: any) =>
+                      `${entry.nome}: ${entry.quantidade}`
                     }
                     outerRadius={100}
                     fill="#8884d8"
