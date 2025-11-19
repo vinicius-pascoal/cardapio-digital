@@ -35,10 +35,10 @@ function OrdersPageContent() {
         // Buscar pedidos da API
         const ordersData = await ordersAPI.list();
 
-        // Transformar para o formato esperado, mapeando campos do backend
+        // Transformar usando campos da API: 'itens' e 'criadoEm'
         const transformedOrders: Order[] = ordersData.map((o: any) => {
-          // Mapeia campos do backend para o frontend
-          const items = (o.items || o.itens || []).map((it: any) => {
+          // API retorna 'itens' com 'prato' incluído
+          const items = (o.itens || o.items || []).map((it: any) => {
             const prato = it.prato || {};
             const preco = prato.preco;
             let precoFormatado: string | undefined;
@@ -46,7 +46,6 @@ function OrdersPageContent() {
               if (typeof preco === 'number') {
                 precoFormatado = `R$ ${preco.toFixed(2).replace('.', ',')}`;
               } else if (typeof preco === 'string') {
-                // Se vier como string numérica, formata
                 const n = parseFloat(preco.replace(/[^\d.,]/g, '').replace(',', '.'));
                 precoFormatado = isNaN(n) ? preco : `R$ ${n.toFixed(2).replace('.', ',')}`;
               }
@@ -58,22 +57,17 @@ function OrdersPageContent() {
             };
           });
 
-          // Calcular total
-          const total = o.total || (items && Array.isArray(items)
-            ? items.reduce((sum: number, it: any) => {
-              const preco = it.preco ? parseFloat(String(it.preco).replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
-              return sum + (preco * (it.quantidade || 1));
-            }, 0)
-            : 0);
+          // API retorna 'total' já calculado
+          const total = o.total;
 
           return {
             id: o.id,
-            createdAt: o.createdAt || o.criadoEm || new Date().toISOString(),
+            createdAt: o.criadoEm || o.createdAt || new Date().toISOString(),
             items,
             total: typeof total === 'number'
               ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
               : total,
-            status: o.status || "pending", // Backend pode não ter status
+            status: o.status || "pending",
           };
         });
 

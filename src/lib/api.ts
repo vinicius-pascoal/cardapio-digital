@@ -21,6 +21,8 @@ export interface Prato {
 }
 
 export interface ItemPedido {
+  id?: number;
+  pedidoId?: number;
   pratoId: number;
   quantidade: number;
   prato?: Prato;
@@ -28,9 +30,11 @@ export interface ItemPedido {
 
 export interface Pedido {
   id: number;
-  items: ItemPedido[];
+  items?: ItemPedido[];  // Campo usado no frontend/localStorage
+  itens?: ItemPedido[];  // Campo usado pela API
   total?: number;
-  createdAt?: string;
+  createdAt?: string;    // Campo usado no frontend/localStorage
+  criadoEm?: string;     // Campo usado pela API
   updatedAt?: string;
 }
 

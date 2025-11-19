@@ -22,7 +22,6 @@ function StatsCards() {
       try {
         // Buscar pedidos da API
         const orders = await ordersAPI.list();
-        console.log('Pedidos carregados da API:', orders);
 
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -32,22 +31,39 @@ function StatsCards() {
         const dishCounts: Record<string, number> = {};
 
         for (const o of orders) {
-          const d = new Date(o.createdAt || '');
+          const d = new Date(o.criadoEm || o.createdAt || '');
           if (d >= startOfToday) todayCount++;
           if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) monthCount++;
 
-          // Calcular receita
-          if (o.total) {
-            revenue += typeof o.total === 'number' ? o.total : 0;
-          } else if (Array.isArray(o.items)) {
-            for (const it of o.items) {
-              const preco = it.prato?.preco || 0;
-              revenue += preco * (it.quantidade || 1);
+          // Calcular receita usando o campo 'total' da API
+          if (o.total !== undefined && o.total !== null) {
+            if (typeof o.total === 'number') {
+              revenue += o.total;
+            } else if (typeof o.total === 'string') {
+              const cleanTotal = String(o.total).replace(/[^\d.,]/g, '').replace(',', '.');
+              const numTotal = parseFloat(cleanTotal);
+              if (!isNaN(numTotal)) {
+                revenue += numTotal;
+              }
+            }
+          } else {
+            // Calcular dos itens se não tiver total
+            const items = o.itens || o.items || [];
+            if (Array.isArray(items)) {
+              for (const it of items) {
+                const preco = it.prato?.preco || 0;
+                const precoNum = typeof preco === 'number' ? preco : parseFloat(String(preco).replace(/[^\d.,]/g, '').replace(',', '.'));
+                if (!isNaN(precoNum)) {
+                  revenue += precoNum * (it.quantidade || 1);
+                }
+              }
             }
           }
 
-          if (Array.isArray(o.items)) {
-            for (const it of o.items) {
+          // Contar pratos mais pedidos
+          const items = o.itens || o.items || [];
+          if (Array.isArray(items)) {
+            for (const it of items) {
               const name = it.prato?.nome || "Desconhecido";
               const q = it.quantidade || 1;
               dishCounts[name] = (dishCounts[name] || 0) + q;
@@ -59,8 +75,6 @@ function StatsCards() {
         for (const [nome, quantidade] of Object.entries(dishCounts)) {
           if (!top || quantidade > top.quantidade) top = { nome, quantidade };
         }
-
-        console.log('Estatísticas calculadas:', { todayCount, monthCount, revenue, top });
 
         setOrdersToday(todayCount);
         setOrdersThisMonth(monthCount);
@@ -77,7 +91,6 @@ function StatsCards() {
       try {
         const raw = localStorage.getItem("orders");
         const orders = raw ? JSON.parse(raw) : [];
-        console.log('Pedidos carregados do localStorage:', orders);
 
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -87,24 +100,40 @@ function StatsCards() {
         const dishCounts: Record<string, number> = {};
 
         for (const o of orders) {
-          const d = new Date(o.createdAt);
+          const d = new Date(o.criadoEm || o.createdAt);
           if (d >= startOfToday) todayCount++;
           if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) monthCount++;
 
-          // Calcular receita
-          const total = o.total;
-          if (total) {
-            if (typeof total === 'number') {
-              revenue += total;
-            } else if (typeof total === 'string') {
-              const n = parseFloat(total.replace(/[^0-9.,-]+/g, '').replace(/,/g, '.'));
-              if (!isNaN(n)) revenue += n;
+          // Calcular receita usando o campo 'total' da API
+          if (o.total !== undefined && o.total !== null) {
+            if (typeof o.total === 'number') {
+              revenue += o.total;
+            } else if (typeof o.total === 'string') {
+              const cleanTotal = String(o.total).replace(/[^\d.,]/g, '').replace(',', '.');
+              const numTotal = parseFloat(cleanTotal);
+              if (!isNaN(numTotal)) {
+                revenue += numTotal;
+              }
+            }
+          } else {
+            // Calcular dos itens se não tiver total
+            const items = o.itens || o.items || [];
+            if (Array.isArray(items)) {
+              for (const it of items) {
+                const preco = it.prato?.preco || 0;
+                const precoNum = typeof preco === 'number' ? preco : parseFloat(String(preco).replace(/[^\d.,]/g, '').replace(',', '.'));
+                if (!isNaN(precoNum)) {
+                  revenue += precoNum * (it.quantidade || 1);
+                }
+              }
             }
           }
 
-          if (Array.isArray(o.items)) {
-            for (const it of o.items) {
-              const name = it.nome || it.name || "Desconhecido";
+          // Contar pratos mais pedidos
+          const items = o.itens || o.items || [];
+          if (Array.isArray(items)) {
+            for (const it of items) {
+              const name = it.prato?.nome || "Desconhecido";
               const q = typeof it.quantidade === "number" ? it.quantidade : (parseInt(it.quantidade) || 1);
               dishCounts[name] = (dishCounts[name] || 0) + q;
             }
@@ -116,14 +145,11 @@ function StatsCards() {
           if (!top || quantidade > top.quantidade) top = { nome, quantidade };
         }
 
-        console.log('Estatísticas do localStorage:', { todayCount, monthCount, revenue, top });
-
         setOrdersToday(todayCount);
         setOrdersThisMonth(monthCount);
         setMostOrdered(top);
         setTotalRevenue(revenue);
       } catch (e) {
-        console.error('Erro ao carregar do localStorage:', e);
         setOrdersToday(0);
         setOrdersThisMonth(0);
         setMostOrdered(null);
@@ -342,13 +368,53 @@ function OrdersList() {
     async function load() {
       try {
         const ordersData = await ordersAPI.list();
-        setOrders(ordersData);
+
+        // Transformar para o formato esperado, mapeando campos do backend
+        const transformedOrders = ordersData.map((o: any) => {
+          // Usar campos da API: 'itens' e 'criadoEm'
+          const items = (o.itens || o.items || []).map((it: any) => {
+            const prato = it.prato || {};
+            return {
+              nome: prato.nome || "Desconhecido",
+              quantidade: it.quantidade,
+            };
+          });
+
+          // API retorna 'total' já calculado
+          const total = o.total;
+
+          return {
+            id: o.id,
+            criadoEm: o.criadoEm || o.createdAt || new Date().toISOString(),
+            items,
+            total: typeof total === 'number'
+              ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+              : total,
+          };
+        });
+
+        // Ordenar por data de criação: mais recentes primeiro
+        const sortedOrders = transformedOrders.sort((a, b) => {
+          const dateA = new Date(a.criadoEm).getTime();
+          const dateB = new Date(b.criadoEm).getTime();
+          return dateB - dateA;
+        });
+
+        // Limitar aos 5 pedidos mais recentes
+        setOrders(sortedOrders.slice(0, 5));
       } catch (err) {
         console.error('Erro ao carregar pedidos:', err);
         // Fallback para localStorage
         try {
           const raw = localStorage.getItem("orders");
-          setOrders(raw ? JSON.parse(raw) : []);
+          const localOrders = raw ? JSON.parse(raw) : [];
+          // Ordenar e limitar também no localStorage
+          const sorted = localOrders.sort((a: any, b: any) => {
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return dateB - dateA;
+          });
+          setOrders(sorted.slice(0, 5));
         } catch {
           setOrders([]);
         }
@@ -365,41 +431,24 @@ function OrdersList() {
         <p className="text-sm text-gray-600">Nenhum pedido</p>
       ) : (
         <ul className="space-y-2 max-h-56 overflow-y-auto">
-          {orders.map((o) => {
-            // Calcular total se não vier da API
-            const total = o.total || (o.items && Array.isArray(o.items)
-              ? o.items.reduce((sum: number, it: any) => {
-                const preco = it.prato?.preco || 0;
-                return sum + (preco * (it.quantidade || 1));
-              }, 0)
-              : 0);
-
-            const totalFormatado = typeof total === 'number'
-              ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-              : total;
-
-            return (
-              <li key={o.id} className="p-2 border rounded bg-white/70">
-                <div className="flex justify-between">
-                  <div>
-                    <div className="font-medium">Pedido #{o.id}</div>
-                    <div className="text-sm text-gray-500">
-                      {new Date(o.createdAt || '').toLocaleString('pt-BR')}
-                    </div>
+          {orders.map((o) => (
+            <li key={o.id} className="p-2 border rounded bg-white/70">
+              <div className="flex justify-between">
+                <div>
+                  <div className="font-medium">Pedido #{o.id}</div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(o.criadoEm).toLocaleString('pt-BR')}
                   </div>
-                  <div className="font-semibold">{totalFormatado}</div>
                 </div>
-                <ul className="text-sm mt-2">
-                  {o.items && o.items.map((it: any, i: number) => {
-                    const nomePrato = it.prato?.nome || it.nome || "Item desconhecido";
-                    return (
-                      <li key={i}>{nomePrato} x {it.quantidade}</li>
-                    );
-                  })}
-                </ul>
-              </li>
-            );
-          })}
+                <div className="font-semibold">{o.total}</div>
+              </div>
+              <ul className="text-sm mt-2">
+                {o.items && o.items.map((it: any, i: number) => (
+                  <li key={i}>{it.nome} x {it.quantidade}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
         </ul>
       )}
     </div>
