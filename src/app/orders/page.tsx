@@ -162,8 +162,12 @@ function OrdersPageContent() {
         }
         return false;
       })
-      .slice()
-      .reverse();
+      .sort((a, b) => {
+        // Ordenar por data de criação: mais recentes primeiro
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      });
   }, [orders, query, statusFilter, dateFrom, dateTo]);
 
   const totalCount = useMemo(() => filtered.length, [filtered]);

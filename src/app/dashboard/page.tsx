@@ -23,7 +23,7 @@ function StatsCards() {
         // Buscar pedidos da API
         const orders = await ordersAPI.list();
         console.log('Pedidos carregados da API:', orders);
-        
+
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         let todayCount = 0;
@@ -78,7 +78,7 @@ function StatsCards() {
         const raw = localStorage.getItem("orders");
         const orders = raw ? JSON.parse(raw) : [];
         console.log('Pedidos carregados do localStorage:', orders);
-        
+
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         let todayCount = 0;
