@@ -9,6 +9,7 @@ import GraniteBackground from "../../components/GraniteBackground";
 import MenuTable from "../../components/MenuTable";
 import { swalError, swalSuccess, swalConfirm } from "../../lib/swal";
 import { categoriesAPI, dishesAPI, ordersAPI, type Categoria, type Prato, type Pedido } from "../../lib/api";
+import { useLoading } from "../../components/LoadingProvider";
 
 function StatsCards() {
   const [ordersToday, setOrdersToday] = useState(0);
@@ -141,6 +142,7 @@ function StatsCards() {
 }
 
 function AddMenuItemForm() {
+  const { withLoading } = useLoading();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState("");
   const [nome, setNome] = useState("");
@@ -201,12 +203,12 @@ function AddMenuItemForm() {
       }
 
       // Criar prato via API
-      await dishesAPI.create({
+      await withLoading(dishesAPI.create({
         nome,
         descricao: descricao || undefined,
         preco: precoNumerico,
         categoriaId: categoria.id,
-      });
+      }));
 
       window.dispatchEvent(new Event("menu-updated"));
       setNome(""); setPreco(""); setDescricao(""); setSelectedCategoria("");
@@ -243,6 +245,7 @@ function AddMenuItemForm() {
 }
 
 function CreateCategoryForm() {
+  const { withLoading } = useLoading();
   const [nome, setNome] = useState("");
 
   async function handleCreate(e: React.FormEvent) {
@@ -253,7 +256,7 @@ function CreateCategoryForm() {
     }
     try {
       // Criar categoria via API
-      const novaCategoria = await categoriesAPI.create({ nome: nome.trim() });
+      const novaCategoria = await withLoading(categoriesAPI.create({ nome: nome.trim() }));
 
       window.dispatchEvent(new Event("menu-updated"));
       setNome("");
@@ -355,6 +358,7 @@ function OrdersList() {
 }
 
 function CategoriesTable() {
+  const { withLoading } = useLoading();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -384,7 +388,7 @@ function CategoriesTable() {
     if (!res.isConfirmed) return;
 
     try {
-      await categoriesAPI.delete(id);
+      await withLoading(categoriesAPI.delete(id));
       window.dispatchEvent(new Event("menu-updated"));
       swalSuccess("Removida", "Categoria removida com sucesso");
     } catch (err: any) {
@@ -480,6 +484,7 @@ function CategoriesTable() {
 }
 
 function DishesTable() {
+  const { withLoading } = useLoading();
   const [pratos, setPratos] = useState<Prato[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -520,7 +525,7 @@ function DishesTable() {
     if (!res.isConfirmed) return;
 
     try {
-      await dishesAPI.delete(id);
+      await withLoading(dishesAPI.delete(id));
       window.dispatchEvent(new Event("menu-updated"));
       swalSuccess("Removido", "Prato removido com sucesso");
     } catch (err: any) {

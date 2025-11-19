@@ -4,9 +4,11 @@ import { useCart } from "./CartProvider";
 import { useState, useRef, useEffect } from "react";
 import { swalSuccess, swalError, swalConfirm } from "../lib/swal";
 import { ordersAPI } from "../lib/api";
+import { useLoading } from "./LoadingProvider";
 
 export default function CartModal() {
   const { items, removeItem, addItem, clear, open, setOpen } = useCart();
+  const { withLoading } = useLoading();
   const [submitting, setSubmitting] = useState(false);
   const mountedRef = useRef(true);
 
@@ -116,7 +118,7 @@ export default function CartModal() {
                     swalSuccess("Pedido salvo localmente", "Pedido salvo! (Modo offline)");
                   } else {
                     // Criar pedido via API
-                    await ordersAPI.create({ items: itemsParaAPI });
+                    await withLoading(ordersAPI.create({ items: itemsParaAPI }));
 
                     clear();
                     if (mountedRef.current) setSubmitting(false);
