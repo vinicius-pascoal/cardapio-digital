@@ -98,21 +98,42 @@ function StatsCards() {
   }, []);
 
   return (
-    <div className="w-full mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
-        <div className="text-sm text-gray-500">Pedidos hoje</div>
-        <div className="text-2xl font-bold text-[#1e2939]">{ordersToday}</div>
+    <div className="w-full mb-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100/80 backdrop-blur-md border border-blue-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div className="text-sm font-medium text-blue-700">Pedidos hoje</div>
+        </div>
+        <div className="text-3xl font-extrabold text-blue-900">{ordersToday}</div>
       </div>
-      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
-        <div className="text-sm text-gray-500">Pedidos este mês</div>
-        <div className="text-2xl font-bold text-[#1e2939]">{ordersThisMonth}</div>
+      <div className="p-6 bg-gradient-to-br from-green-50 to-green-100/80 backdrop-blur-md border border-green-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-green-500 rounded-lg">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div className="text-sm font-medium text-green-700">Pedidos este mês</div>
+        </div>
+        <div className="text-3xl font-extrabold text-green-900">{ordersThisMonth}</div>
       </div>
-      <div className="p-4 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm">
-        <div className="text-sm text-gray-500">Prato mais pedido</div>
+      <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100/80 backdrop-blur-md border border-purple-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-purple-500 rounded-lg">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+          </div>
+          <div className="text-sm font-medium text-purple-700">Prato mais pedido</div>
+        </div>
         {mostOrdered ? (
-          <div className="text-lg font-semibold">{mostOrdered.nome} <span className="text-sm text-gray-600">({mostOrdered.quantidade})</span></div>
+          <div className="text-lg font-bold text-purple-900">{mostOrdered.nome} <span className="text-sm font-normal text-purple-600">({mostOrdered.quantidade}x)</span></div>
         ) : (
-          <div className="text-sm text-gray-600">Nenhum pedido</div>
+          <div className="text-sm text-purple-600">Nenhum pedido ainda</div>
         )}
       </div>
     </div>
@@ -197,23 +218,25 @@ function AddMenuItemForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700">Categoria</label>
-      <select value={selectedCategoria} onChange={(e) => setSelectedCategoria(e.target.value)} className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]" required>
-        <option value="">-- Selecione uma categoria --</option>
-        {categorias.map((c) => (
-          <option key={c.id} value={c.id.toString()}>{c.nome}</option>
-        ))}
-      </select>
-
-      <div className="grid grid-cols-1 gap-2">
-        <input placeholder="Nome do item" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]" required />
-        <input placeholder="Preço (ex: 10.50 ou R$ 10,50)" value={preco} onChange={(e) => setPreco(e.target.value)} className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]" required />
-        <input placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} className="w-full border border-gray-300 px-3 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]" />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Categoria</label>
+        <select value={selectedCategoria} onChange={(e) => setSelectedCategoria(e.target.value)} className="w-full border-2 border-gray-300 px-4 py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939] focus:border-transparent transition-all" required>
+          <option value="">-- Selecione uma categoria --</option>
+          {categorias.map((c) => (
+            <option key={c.id} value={c.id.toString()}>{c.nome}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="flex justify-end">
-        <button type="submit" className="px-4 py-2 bg-[#1e2939] hover:bg-[#16202a] text-white rounded shadow">Adicionar</button>
+      <div className="space-y-3">
+        <input placeholder="Nome do prato" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border-2 border-gray-300 px-4 py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939] focus:border-transparent transition-all" required />
+        <input placeholder="Preço (ex: 10.50 ou R$ 10,50)" value={preco} onChange={(e) => setPreco(e.target.value)} className="w-full border-2 border-gray-300 px-4 py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939] focus:border-transparent transition-all" required />
+        <input placeholder="Descrição (opcional)" value={descricao} onChange={(e) => setDescricao(e.target.value)} className="w-full border-2 border-gray-300 px-4 py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939] focus:border-transparent transition-all" />
+      </div>
+
+      <div className="flex justify-end pt-2">
+        <button type="submit" className="px-6 py-2.5 bg-[#1e2939] hover:bg-[#16202a] text-white rounded-lg shadow-md hover:shadow-lg font-medium transition-all">+ Adicionar Prato</button>
       </div>
     </form>
   );
@@ -248,10 +271,13 @@ function CreateCategoryForm() {
   }
 
   return (
-    <form onSubmit={handleCreate} className="space-y-2">
-      <input placeholder="Nome da categoria" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border px-2 py-1 rounded" required />
-      <div className="flex justify-end">
-        <button type="submit" className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow">Criar categoria</button>
+    <form onSubmit={handleCreate} className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Nome da Categoria</label>
+        <input placeholder="Ex: Sobremesas, Bebidas..." value={nome} onChange={(e) => setNome(e.target.value)} className="w-full border-2 border-gray-300 px-4 py-2.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all" required />
+      </div>
+      <div className="flex justify-end pt-2">
+        <button type="submit" className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md hover:shadow-lg font-medium transition-all">+ Criar Categoria</button>
       </div>
     </form>
   );
@@ -458,7 +484,13 @@ function DishesTable() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 5;
+
+  // Estados para filtros
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   useEffect(() => {
     loadData();
@@ -526,9 +558,54 @@ function DishesTable() {
     return 'R$ 0,00';
   }
 
-  const totalPages = Math.ceil(pratos.length / itemsPerPage);
+  function getPriceValue(preco: any): number {
+    if (typeof preco === 'number') return preco;
+    if (typeof preco === 'string') {
+      const cleaned = preco.replace(/[^0-9.,]/g, '').replace(',', '.');
+      return parseFloat(cleaned) || 0;
+    }
+    return 0;
+  }
+
+  // Aplicar filtros
+  const filteredPratos = pratos.filter((prato) => {
+    // Filtro de busca por nome
+    if (searchTerm && !prato.nome.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro de categoria
+    if (selectedCategory && prato.categoriaId.toString() !== selectedCategory) {
+      return false;
+    }
+
+    // Filtro de preço mínimo
+    if (minPrice) {
+      const minVal = parseFloat(minPrice);
+      if (!isNaN(minVal) && getPriceValue(prato.preco) < minVal) {
+        return false;
+      }
+    }
+
+    // Filtro de preço máximo
+    if (maxPrice) {
+      const maxVal = parseFloat(maxPrice);
+      if (!isNaN(maxVal) && getPriceValue(prato.preco) > maxVal) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredPratos.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedPratos = pratos.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedPratos = filteredPratos.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset para página 1 quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, minPrice, maxPrice]);
 
   if (loading) {
     return <div className="text-center py-4">Carregando pratos...</div>;
@@ -536,6 +613,81 @@ function DishesTable() {
 
   return (
     <div>
+      {/* Filtros */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Buscar por nome</label>
+            <input
+              type="text"
+              placeholder="Digite o nome..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Categoria</label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+            >
+              <option value="">Todas</option>
+              {categorias.map((cat) => (
+                <option key={cat.id} value={cat.id.toString()}>
+                  {cat.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Preço mínimo</label>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Ex: 5.00"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Preço máximo</label>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Ex: 50.00"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e2939]"
+            />
+          </div>
+        </div>
+
+        {(searchTerm || selectedCategory || minPrice || maxPrice) && (
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              {filteredPratos.length} prato{filteredPratos.length !== 1 ? 's' : ''} encontrado{filteredPratos.length !== 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory("");
+                setMinPrice("");
+                setMaxPrice("");
+              }}
+              className="text-sm text-red-600 hover:text-red-700 font-medium"
+            >
+              Limpar filtros
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="overflow-x-auto" style={{ maxHeight: '500px' }}>
         <table className="w-full text-sm">
           <thead className="bg-gray-100 sticky top-0">
@@ -626,46 +778,90 @@ export default function DashboardPage() {
     <GraniteBackground>
       <main className="min-h-screen py-10 text-gray-800">
         <div className="max-w-6xl mx-auto px-6">
-          <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <header className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b-2 border-gray-200">
             <div>
-              <h1 className="text-3xl font-extrabold">Dashboard</h1>
-              <p className="text-gray-600 mt-1">Visão geral do cardápio, pedidos e controle rápido</p>
+              <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Dashboard Admin</h1>
+              <p className="text-gray-600 text-lg">Gerencie seu cardápio e acompanhe os pedidos em tempo real</p>
             </div>
 
-            <nav className="flex items-center gap-3">
-              <a href="/" className="px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50">Ver cardápio</a>
-              <a href="/orders" className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">Ver pedidos</a>
-              <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700">Logout</button>
+            <nav className="flex flex-wrap items-center gap-3">
+              <a href="/" className="px-5 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-100 font-medium transition-colors flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Cardápio
+              </a>
+              <a href="/orders" className="px-5 py-2.5 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 font-medium transition-colors flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Pedidos
+              </a>
+              <button onClick={handleLogout} className="px-5 py-2.5 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 font-medium transition-colors flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sair
+              </button>
             </nav>
           </header>
 
           <StatsCards />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-xl border border-gray-200">
-              <h3 className="text-xl font-semibold mb-4">Categorias</h3>
+            <div className="p-8 bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Categorias</h3>
+              </div>
               <CategoriesTable />
             </div>
 
-            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-xl border border-gray-200">
-              <h3 className="text-xl font-semibold mb-4">Pedidos recentes</h3>
+            <div className="p-8 bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-indigo-500 rounded-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Pedidos Recentes</h3>
+              </div>
               <OrdersList />
             </div>
           </div>
 
-          <div className="mb-8 p-6 bg-white/60 backdrop-blur rounded-xl shadow-xl border border-gray-200">
-            <h3 className="text-xl font-semibold mb-4">Pratos do cardápio</h3>
+          <div className="mb-8 p-8 bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-shadow">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-teal-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">Todos os Pratos</h3>
+            </div>
             <DishesTable />
           </div>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-lg border border-gray-200">
-              <h4 className="font-semibold mb-3">Adicionar item ao cardápio</h4>
-              <AddMenuItemForm />
-            </div>
-            <div className="p-6 bg-white/60 backdrop-blur rounded-xl shadow-lg border border-gray-200">
-              <h4 className="font-semibold mb-3">Criar nova categoria</h4>
-              <CreateCategoryForm />
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6 text-[#1e2939]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Adicionar Novos Itens
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-7 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur rounded-2xl shadow-lg border-2 border-gray-200 hover:border-[#1e2939] transition-colors">
+                <h4 className="font-bold text-lg mb-4 text-gray-900">Adicionar Prato</h4>
+                <AddMenuItemForm />
+              </div>
+              <div className="p-7 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur rounded-2xl shadow-lg border-2 border-gray-200 hover:border-green-600 transition-colors">
+                <h4 className="font-bold text-lg mb-4 text-gray-900">Criar Categoria</h4>
+                <CreateCategoryForm />
+              </div>
             </div>
           </div>
         </div>
