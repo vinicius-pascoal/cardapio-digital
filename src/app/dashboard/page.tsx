@@ -511,6 +511,8 @@ function CategoriesTable() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -529,6 +531,34 @@ function CategoriesTable() {
       swalError("Erro", "Erro ao carregar categorias");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function startEdit(cat: Categoria) {
+    setEditingId(cat.id);
+    setEditName(cat.nome);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditName("");
+  }
+
+  async function saveEdit(id: number) {
+    if (!editName.trim()) {
+      swalError("Erro", "O nome da categoria não pode estar vazio");
+      return;
+    }
+
+    try {
+      await withLoading(categoriesAPI.update(id, { nome: editName.trim() }));
+      window.dispatchEvent(new Event("menu-updated"));
+      swalSuccess("Atualizada", "Categoria atualizada com sucesso");
+      setEditingId(null);
+      setEditName("");
+    } catch (err: any) {
+      console.error('Erro ao atualizar categoria:', err);
+      swalError("Erro", err.message || "Erro ao atualizar categoria");
     }
   }
 
@@ -591,14 +621,51 @@ function CategoriesTable() {
               paginatedCategorias.map((cat) => (
                 <tr key={cat.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2">{cat.id}</td>
-                  <td className="px-4 py-2 font-medium">{cat.nome}</td>
+                  <td className="px-4 py-2 font-medium">
+                    {editingId === cat.id ? (
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm"
+                        autoFocus
+                      />
+                    ) : (
+                      cat.nome
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-center">
-                    <button
-                      onClick={() => handleDelete(cat.id, cat.nome)}
-                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded"
-                    >
-                      Remover
-                    </button>
+                    {editingId === cat.id ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => saveEdit(cat.id)}
+                          className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white text-xs rounded"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => startEdit(cat)}
+                          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(cat.id, cat.nome)}
+                          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))
@@ -646,6 +713,13 @@ function DishesTable() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
+  // Estados para edição
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editNome, setEditNome] = useState("");
+  const [editDescricao, setEditDescricao] = useState("");
+  const [editPreco, setEditPreco] = useState("");
+  const [editCategoriaId, setEditCategoriaId] = useState("");
+
   useEffect(() => {
     loadData();
     window.addEventListener("menu-updated", loadData);
@@ -666,6 +740,55 @@ function DishesTable() {
       swalError("Erro", "Erro ao carregar pratos");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function startEdit(prato: Prato) {
+    setEditingId(prato.id);
+    setEditNome(prato.nome);
+    setEditDescricao(prato.descricao || "");
+    setEditPreco(prato.preco.toString());
+    setEditCategoriaId(prato.categoriaId.toString());
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditNome("");
+    setEditDescricao("");
+    setEditPreco("");
+    setEditCategoriaId("");
+  }
+
+  async function saveEdit(id: number) {
+    if (!editNome.trim()) {
+      swalError("Erro", "O nome do prato não pode estar vazio");
+      return;
+    }
+
+    const precoNum = parseFloat(editPreco);
+    if (isNaN(precoNum) || precoNum <= 0) {
+      swalError("Erro", "Digite um preço válido maior que zero");
+      return;
+    }
+
+    if (!editCategoriaId) {
+      swalError("Erro", "Selecione uma categoria");
+      return;
+    }
+
+    try {
+      await withLoading(dishesAPI.update(id, {
+        nome: editNome.trim(),
+        descricao: editDescricao.trim() || undefined,
+        preco: precoNum,
+        categoriaId: parseInt(editCategoriaId),
+      }));
+      window.dispatchEvent(new Event("menu-updated"));
+      swalSuccess("Atualizado", "Prato atualizado com sucesso");
+      cancelEdit();
+    } catch (err: any) {
+      console.error('Erro ao atualizar prato:', err);
+      swalError("Erro", err.message || "Erro ao atualizar prato");
     }
   }
 
@@ -802,6 +925,7 @@ function DishesTable() {
             <input
               type="number"
               step="0.01"
+              min="0"
               placeholder="Ex: 5.00"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
@@ -814,6 +938,7 @@ function DishesTable() {
             <input
               type="number"
               step="0.01"
+              min="0"
               placeholder="Ex: 50.00"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
@@ -862,20 +987,96 @@ function DishesTable() {
               </tr>
             ) : (
               paginatedPratos.map((prato) => (
-                <tr key={prato.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{prato.id}</td>
-                  <td className="px-4 py-2 font-medium">{prato.nome}</td>
-                  <td className="px-4 py-2 text-gray-600">{getCategoriaNome(prato.categoriaId)}</td>
-                  <td className="px-4 py-2 text-right font-semibold">{formatPrice(prato.preco)}</td>
-                  <td className="px-4 py-2 text-center">
-                    <button
-                      onClick={() => handleDelete(prato.id, prato.nome)}
-                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded"
-                    >
-                      Remover
-                    </button>
-                  </td>
-                </tr>
+                editingId === prato.id ? (
+                  <tr key={prato.id} className="border-b bg-blue-50">
+                    <td className="px-4 py-2">{prato.id}</td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="text"
+                        value={editNome}
+                        onChange={(e) => setEditNome(e.target.value)}
+                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm"
+                        placeholder="Nome do prato"
+                      />
+                      <input
+                        type="text"
+                        value={editDescricao}
+                        onChange={(e) => setEditDescricao(e.target.value)}
+                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm mt-1"
+                        placeholder="Descrição (opcional)"
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <select
+                        value={editCategoriaId}
+                        onChange={(e) => setEditCategoriaId(e.target.value)}
+                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm"
+                      >
+                        <option value="">Selecione...</option>
+                        {categorias.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.nome}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editPreco}
+                        onChange={(e) => setEditPreco(e.target.value)}
+                        className="w-full border border-gray-300 px-2 py-1 rounded text-sm"
+                        placeholder="Preço"
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => saveEdit(prato.id)}
+                          className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded w-full"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white text-xs rounded w-full"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={prato.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-2">{prato.id}</td>
+                    <td className="px-4 py-2">
+                      <div className="font-medium">{prato.nome}</div>
+                      {prato.descricao && (
+                        <div className="text-xs text-gray-500 mt-1">{prato.descricao}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-gray-600">{getCategoriaNome(prato.categoriaId)}</td>
+                    <td className="px-4 py-2 text-right font-semibold">{formatPrice(prato.preco)}</td>
+                    <td className="px-4 py-2 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => startEdit(prato)}
+                          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(prato.id, prato.nome)}
+                          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
               ))
             )}
           </tbody>
