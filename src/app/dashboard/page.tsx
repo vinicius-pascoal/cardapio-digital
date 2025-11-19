@@ -428,29 +428,80 @@ function OrdersList() {
   return (
     <div>
       {orders.length === 0 ? (
-        <p className="text-sm text-gray-600">Nenhum pedido</p>
+        <div className="text-center py-8">
+          <svg className="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <p className="text-sm text-gray-500">Nenhum pedido ainda</p>
+        </div>
       ) : (
-        <ul className="space-y-2 max-h-56 overflow-y-auto">
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
           {orders.map((o) => (
-            <li key={o.id} className="p-2 border rounded bg-white/70">
-              <div className="flex justify-between">
-                <div>
-                  <div className="font-medium">Pedido #{o.id}</div>
-                  <div className="text-sm text-gray-500">
-                    {new Date(o.criadoEm).toLocaleString('pt-BR')}
+            <div key={o.id} className="p-4 bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-indigo-100 rounded-lg">
+                    <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900">Pedido #{o.id}</div>
+                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {new Date(o.criadoEm).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
                   </div>
                 </div>
-                <div className="font-semibold">{o.total}</div>
+                <div className="px-3 py-1.5 bg-green-100 rounded-lg">
+                  <span className="font-bold text-green-700">{o.total}</span>
+                </div>
               </div>
-              <ul className="text-sm mt-2">
-                {o.items && o.items.map((it: any, i: number) => (
-                  <li key={i}>{it.nome} x {it.quantidade}</li>
-                ))}
-              </ul>
-            </li>
+              <div className="border-t border-gray-200 pt-2">
+                <div className="text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                  Itens:
+                </div>
+                <ul className="space-y-1">
+                  {o.items && o.items.map((it: any, i: number) => (
+                    <li key={i} className="text-sm text-gray-700 flex items-center gap-2 pl-5">
+                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                      <span className="font-medium">{it.nome}</span>
+                      <span className="text-gray-500">×</span>
+                      <span className="px-2 py-0.5 bg-gray-100 rounded text-xs font-semibold">{it.quantidade}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
     </div>
   );
 }
@@ -884,7 +935,6 @@ export default function DashboardPage() {
           <header className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b-2 border-gray-200">
             <div>
               <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Dashboard Admin</h1>
-              <p className="text-gray-600 text-lg">Gerencie seu cardápio e acompanhe os pedidos em tempo real</p>
             </div>
 
             <nav className="flex flex-wrap items-center gap-3">
