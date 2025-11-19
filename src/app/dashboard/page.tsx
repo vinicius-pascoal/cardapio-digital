@@ -15,22 +15,37 @@ function StatsCards() {
   const [ordersToday, setOrdersToday] = useState(0);
   const [ordersThisMonth, setOrdersThisMonth] = useState(0);
   const [mostOrdered, setMostOrdered] = useState<{ nome: string; quantidade: number } | null>(null);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     async function loadStats() {
       try {
         // Buscar pedidos da API
         const orders = await ordersAPI.list();
+        console.log('Pedidos carregados da API:', orders);
+        
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         let todayCount = 0;
         let monthCount = 0;
+        let revenue = 0;
         const dishCounts: Record<string, number> = {};
 
         for (const o of orders) {
           const d = new Date(o.createdAt || '');
           if (d >= startOfToday) todayCount++;
           if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) monthCount++;
+
+          // Calcular receita
+          if (o.total) {
+            revenue += typeof o.total === 'number' ? o.total : 0;
+          } else if (Array.isArray(o.items)) {
+            for (const it of o.items) {
+              const preco = it.prato?.preco || 0;
+              revenue += preco * (it.quantidade || 1);
+            }
+          }
+
           if (Array.isArray(o.items)) {
             for (const it of o.items) {
               const name = it.prato?.nome || "Desconhecido";
@@ -45,9 +60,12 @@ function StatsCards() {
           if (!top || quantidade > top.quantidade) top = { nome, quantidade };
         }
 
+        console.log('Estatísticas calculadas:', { todayCount, monthCount, revenue, top });
+
         setOrdersToday(todayCount);
         setOrdersThisMonth(monthCount);
         setMostOrdered(top);
+        setTotalRevenue(revenue);
       } catch (e) {
         console.error('Erro ao carregar estatísticas:', e);
         // Fallback para localStorage
@@ -59,16 +77,31 @@ function StatsCards() {
       try {
         const raw = localStorage.getItem("orders");
         const orders = raw ? JSON.parse(raw) : [];
+        console.log('Pedidos carregados do localStorage:', orders);
+        
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         let todayCount = 0;
         let monthCount = 0;
+        let revenue = 0;
         const dishCounts: Record<string, number> = {};
 
         for (const o of orders) {
           const d = new Date(o.createdAt);
           if (d >= startOfToday) todayCount++;
           if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) monthCount++;
+
+          // Calcular receita
+          const total = o.total;
+          if (total) {
+            if (typeof total === 'number') {
+              revenue += total;
+            } else if (typeof total === 'string') {
+              const n = parseFloat(total.replace(/[^0-9.,-]+/g, '').replace(/,/g, '.'));
+              if (!isNaN(n)) revenue += n;
+            }
+          }
+
           if (Array.isArray(o.items)) {
             for (const it of o.items) {
               const name = it.nome || it.name || "Desconhecido";
@@ -83,13 +116,18 @@ function StatsCards() {
           if (!top || quantidade > top.quantidade) top = { nome, quantidade };
         }
 
+        console.log('Estatísticas do localStorage:', { todayCount, monthCount, revenue, top });
+
         setOrdersToday(todayCount);
         setOrdersThisMonth(monthCount);
         setMostOrdered(top);
+        setTotalRevenue(revenue);
       } catch (e) {
+        console.error('Erro ao carregar do localStorage:', e);
         setOrdersToday(0);
         setOrdersThisMonth(0);
         setMostOrdered(null);
+        setTotalRevenue(0);
       }
     }
 
@@ -99,7 +137,7 @@ function StatsCards() {
   }, []);
 
   return (
-    <div className="w-full mb-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div className="w-full mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100/80 backdrop-blur-md border border-blue-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-blue-500 rounded-lg">
@@ -121,6 +159,17 @@ function StatsCards() {
           <div className="text-sm font-medium text-green-700">Pedidos este mês</div>
         </div>
         <div className="text-3xl font-extrabold text-green-900">{ordersThisMonth}</div>
+      </div>
+      <div className="p-6 bg-gradient-to-br from-emerald-50 to-emerald-100/80 backdrop-blur-md border border-emerald-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-emerald-500 rounded-lg">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="text-sm font-medium text-emerald-700">Receita Total</div>
+        </div>
+        <div className="text-3xl font-extrabold text-emerald-900">R$ {totalRevenue.toFixed(2)}</div>
       </div>
       <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100/80 backdrop-blur-md border border-purple-200 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
         <div className="flex items-center gap-3 mb-2">

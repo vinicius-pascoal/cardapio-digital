@@ -166,45 +166,60 @@ function OrdersPageContent() {
       .reverse();
   }, [orders, query, statusFilter, dateFrom, dateTo]);
 
-  const totals = useMemo(() => {
-    let count = filtered.length;
-    let revenue = 0;
-    for (const o of filtered) {
-      const t = o.total;
-      if (typeof t === "number") revenue += t;
-      else if (typeof t === "string") {
-        const n = parseFloat(t.replace(/[^0-9.,-]+/g, "").replace(/,/g, "."));
-        if (!isNaN(n)) revenue += n;
-      }
-    }
-    return { count, revenue };
-  }, [filtered]);
+  const totalCount = useMemo(() => filtered.length, [filtered]);
 
   return (
     <div className="w-full max-w-6xl mx-auto py-8 px-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="flex flex-col items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
-          <Link href="/" className="px-3 py-1 border rounded text-sm bg-white hover:bg-gray-50 text-gray-700">← Voltar ao Dashboard</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-gray-600">Total: <span className="font-semibold text-gray-900">{totals.count}</span></div>
-          <div className="text-sm text-gray-600">Receita: <span className="font-semibold text-gray-900">R$ {totals.revenue.toFixed(2)}</span></div>
+      <div className="mb-8 pb-6 border-b-2 border-gray-200">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-extrabold text-gray-900">Gerenciar Pedidos</h1>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <Link href="/dashboard" className="px-5 py-2.5 bg-white border-2 border-[#1e2939] text-[#1e2939] rounded-lg hover:bg-[#1e2939] hover:text-white font-medium transition-colors flex items-center gap-2 shadow-md">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Dashboard
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="p-4 bg-white rounded-lg border border-gray-200 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pesquisar por id, item ou total..." className="w-full border px-3 py-2 rounded text-gray-800 bg-white placeholder:text-gray-700" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full border px-3 py-2 rounded text-gray-700">
-            <option value="all">Todos os status</option>
-            <option value="pending">Pendente</option>
-            <option value="delivered">Entregue</option>
-            <option value="cancelled">Cancelado</option>
-          </select>
-          <div className="flex gap-2">
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border px-3 py-2 rounded w-full bg-white text-gray-700" />
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border px-3 py-2 rounded w-full bg-white text-gray-700" />
+      <div className="p-6 bg-white/80 backdrop-blur rounded-2xl border-2 border-gray-200 shadow-lg mb-8">
+        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          Filtros
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Buscar</label>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ID, item ou total..." className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg text-gray-800 bg-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Status</label>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="all">Todos os status</option>
+              <option value="pending">Pendente</option>
+              <option value="delivered">Entregue</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Período</label>
+            <div className="flex gap-2">
+              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border-2 border-gray-300 px-3 py-2 rounded-lg w-full bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border-2 border-gray-300 px-3 py-2 rounded-lg w-full bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </div>
           </div>
         </div>
       </div>
@@ -214,39 +229,64 @@ function OrdersPageContent() {
       ) : filtered.length === 0 ? (
         <p className="text-gray-600">Nenhum pedido encontrado com os filtros aplicados.</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {filtered.map((o) => (
-            <div key={o.id} className="p-4 border rounded-lg bg-white shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm text-gray-600">Pedido</div>
-                    <div className="font-semibold text-gray-900">#{o.id}</div>
-                    <div className="text-sm text-gray-400">•</div>
-                    <div className="text-sm text-gray-500">{new Date(o.createdAt).toLocaleString()}</div>
+            <div key={o.id} className="p-6 border-2 border-gray-200 rounded-2xl bg-white/90 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 font-medium">Pedido</div>
+                      <div className="font-bold text-lg text-gray-900">#{o.id}</div>
+                    </div>
+                    <div className="ml-auto">
+                      <div className="text-xs text-gray-500">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</div>
+                      <div className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleTimeString('pt-BR')}</div>
+                    </div>
                   </div>
-                  <div className="mt-2 text-sm text-gray-800">
+                  <div className="pl-14 space-y-2">
                     {Array.isArray(o.items) && o.items.map((it, i) => (
-                      <div key={i} className="flex justify-between">
-                        <div className="text-gray-800">{it.nome} x {it.quantidade}</div>
-                        <div className="text-gray-700">{it.preco || ''}</div>
+                      <div key={i} className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-800">{it.nome}</span>
+                          <span className="text-xs text-gray-500">x {it.quantidade}</span>
+                        </div>
+                        <div className="text-sm font-semibold text-gray-700">{it.preco || ''}</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start md:items-end gap-2">
-                  <div className="font-bold text-gray-800">{o.total}</div>
-                  <div className="text-sm">
-                    <span className={`px-2 py-1 rounded text-xs ${(o.status || 'pending') === 'delivered' ? 'bg-emerald-100 text-emerald-800' : (o.status === 'cancelled' ? 'bg-rose-100 text-rose-800' : 'bg-yellow-100 text-yellow-800')}`}>
-                      {o.status || 'pending'}
+                <div className="flex flex-col items-start md:items-end gap-3 md:min-w-[200px]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Total:</span>
+                    <span className="text-2xl font-bold text-gray-900">{o.total}</span>
+                  </div>
+                  <div>
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${(o.status || 'pending') === 'delivered' ? 'bg-emerald-100 text-emerald-800' : (o.status === 'cancelled' ? 'bg-rose-100 text-rose-800' : 'bg-yellow-100 text-yellow-800')}`}>
+                      {o.status === 'delivered' ? '✓ Entregue' : o.status === 'cancelled' ? '✕ Cancelado' : '⏳ Pendente'}
                     </span>
                   </div>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {o.status !== 'delivered' && (
-                      <button onClick={() => markDelivered(o.id)} className="px-3 py-1 bg-green-600 text-white rounded text-sm">Marcar entregue</button>
+                      <button onClick={() => markDelivered(o.id)} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Entregar
+                      </button>
                     )}
-                    <button onClick={() => removeOrder(o.id)} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Remover</button>
+                    <button onClick={() => removeOrder(o.id)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remover
+                    </button>
                   </div>
                 </div>
               </div>
