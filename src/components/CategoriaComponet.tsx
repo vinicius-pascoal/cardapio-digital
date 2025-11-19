@@ -29,18 +29,18 @@ export default function CategoriaComponet({
   };
 
   return (
-    <div className="cursor-pointer w-4/5 p-4 mb-6">
+    <div className="cursor-pointer w-full sm:w-4/5 max-w-2xl p-4 sm:p-5 mb-4 sm:mb-6">
       <div
-        className="flex justify-end items-center mb-4 gap-2"
+        className="flex justify-end items-center mb-3 sm:mb-4 gap-2"
         onClick={toggleAtivo}
       >
         {/* Seta ao lado do nome, nome alinhado à direita */}
         <Image
           src={isAtivo ? setaBaixo : setaDireita}
           alt="Seta de categoria"
-          className="w-6 h-6"
+          className="w-5 h-5 sm:w-6 sm:h-6"
         />
-        <h2 className="text-xl font-bold text-right">{nomeCategoria}</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-right">{nomeCategoria}</h2>
       </div>
       {isAtivo && (
         <ul className="">
@@ -87,15 +87,15 @@ function ItemRow({ item }: { item: { id?: number; nome: string; preco: string; d
   }
 
   return (
-    <li className="flex justify-between items-center mb-4">
-      <div className="flex flex-col">
-        <span>{item.nome}</span>
-        <span className="text-gray-500 text-sm ml-2">({item.descricao || "Sem descrição"})</span>
+    <li className="flex justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="text-sm sm:text-base font-medium">{item.nome}</span>
+        <span className="text-gray-500 text-xs sm:text-sm mt-0.5">({item.descricao || "Sem descrição"})</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={handleAdd}
-          className="text-[#1e2939] border border-[#1e2939] rounded-full px-3 py-1 font-medium hover:bg-[#1e2939]/10 transition focus:outline-none focus:ring-2 focus:ring-[#1e2939]/30"
+          className="text-[#1e2939] border border-[#1e2939] rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium hover:bg-[#1e2939]/10 transition focus:outline-none focus:ring-2 focus:ring-[#1e2939]/30 whitespace-nowrap"
         >
           {item.preco}
         </button>

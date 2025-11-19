@@ -44,9 +44,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { }
   }, [items]);
 
-  // Evita incrementos duplicados rápidos (por cliques duplos ou eventos duplicados)
-  // Mapa simples em memória: chave = item.nome (ou id quando disponível)
+  // Evita incrementos/decrementos duplicados rápidos (por cliques duplos ou eventos duplicados)
   const lastAddTimestamps = React.useRef<Record<string, number>>({});
+  const isRemoving = React.useRef(false);
 
   function addItem(item: { id?: number; nome: string; preco: string }) {
     const key = item.id != null ? String(item.id) : String(item.nome).trim().toLowerCase();
@@ -83,13 +83,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   function removeItem(index: number) {
+    if (isRemoving.current) return;
+    isRemoving.current = true;
+
     setItems((prev) => {
       const copy = [...prev];
-      if (!copy[index]) return prev;
-      copy[index].quantidade = Math.max(0, copy[index].quantidade - 1);
+      if (!copy[index]) {
+        isRemoving.current = false;
+        return prev;
+      }
+      copy[index] = { ...copy[index], quantidade: Math.max(0, copy[index].quantidade - 1) };
       if (copy[index].quantidade <= 0) {
         copy.splice(index, 1);
       }
+      setTimeout(() => { isRemoving.current = false; }, 100);
       return copy;
     });
   }
