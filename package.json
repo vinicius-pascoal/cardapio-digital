@@ -12,6 +12,8 @@
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-is": "^19.2.0",
+    "recharts": "^3.4.1",
     "sweetalert2": "^11.26.3",
     "sweetalert2-react-content": "^5.1.0"
   },
