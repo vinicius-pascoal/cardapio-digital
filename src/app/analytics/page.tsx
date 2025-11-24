@@ -123,11 +123,26 @@ export default function AnalyticsPage() {
     filteredOrders.forEach((o) => {
       const date = new Date(o.criadoEm || o.createdAt);
       const dateKey = date.toLocaleDateString("pt-BR");
-      const total = o.total || 0;
-      const revenue = typeof total === "number" ? total : parseFloat(String(total).replace(/[^\d.,]/g, "").replace(",", "."));
 
-      if (!isNaN(revenue)) {
-        dayRevenue[dateKey] = (dayRevenue[dateKey] || 0) + revenue;
+      // Calcular total baseado nos itens se não vier da API
+      let orderTotal = 0;
+      if (o.total && o.total > 0) {
+        orderTotal = typeof o.total === "number" ? o.total : parseFloat(String(o.total).replace(/[R$\s]/g, "").replace(",", "."));
+      } else {
+        // Calcular pelos itens
+        const items = o.itens || o.items || [];
+        items.forEach((item: any) => {
+          const preco = item.prato?.preco || 0;
+          const quantidade = item.quantidade || 1;
+          const precoNum = typeof preco === "number" ? preco : parseFloat(String(preco).replace(/[R$\s]/g, "").replace(",", "."));
+          if (!isNaN(precoNum)) {
+            orderTotal += precoNum * quantidade;
+          }
+        });
+      }
+
+      if (!isNaN(orderTotal) && orderTotal > 0) {
+        dayRevenue[dateKey] = (dayRevenue[dateKey] || 0) + orderTotal;
       }
     });
 
@@ -168,10 +183,31 @@ export default function AnalyticsPage() {
     let totalRevenue = 0;
 
     filteredOrders.forEach((o) => {
-      const total = o.total || 0;
-      const revenue = typeof total === "number" ? total : parseFloat(String(total).replace(/[^\d.,]/g, "").replace(",", "."));
-      if (!isNaN(revenue)) {
-        totalRevenue += revenue;
+      let orderTotal = 0;
+
+      // Verificar se tem total na API
+      if (o.total && o.total > 0) {
+        if (typeof o.total === "number") {
+          orderTotal = o.total;
+        } else if (typeof o.total === "string") {
+          const cleaned = o.total.replace(/[R$\s]/g, "").replace(",", ".");
+          orderTotal = parseFloat(cleaned);
+        }
+      } else {
+        // Calcular total baseado nos itens do pedido
+        const items = o.itens || o.items || [];
+        items.forEach((item: any) => {
+          const preco = item.prato?.preco || 0;
+          const quantidade = item.quantidade || 1;
+          const precoNum = typeof preco === "number" ? preco : parseFloat(String(preco).replace(/[R$\s]/g, "").replace(",", "."));
+          if (!isNaN(precoNum)) {
+            orderTotal += precoNum * quantidade;
+          }
+        });
+      }
+
+      if (!isNaN(orderTotal) && orderTotal > 0) {
+        totalRevenue += orderTotal;
       }
     });
 
