@@ -44,20 +44,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { }
   }, [items]);
 
-  // Evita incrementos/decrementos duplicados rápidos (por cliques duplos ou eventos duplicados)
-  const lastAddTimestamps = React.useRef<Record<string, number>>({});
+  // Evita decrementos duplicados rápidos (por cliques duplos ou eventos duplicados)
   const isRemoving = React.useRef(false);
 
   function addItem(item: { id?: number; nome: string; preco: string }) {
     const key = item.id != null ? String(item.id) : String(item.nome).trim().toLowerCase();
-    const now = Date.now();
-    const last = lastAddTimestamps.current[key] || 0;
-    // se o último add foi há menos de 300ms, ignorar (evita duplo incremento)
-    if (now - last < 300) {
-      lastAddTimestamps.current[key] = now;
-      return;
-    }
-    lastAddTimestamps.current[key] = now;
     setItems((prev) => {
       // Consolidar possíveis entradas duplicadas existentes e somar quantidades
       const map = new Map<string, CartItem>();
