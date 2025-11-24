@@ -97,7 +97,7 @@ export default function LoginPage() {
                   >
                     {loading ? "Entrando..." : "Entrar"}
                   </button>
-                  <a href="#" className="text-sm text-gray-600 hover:underline">Voltar ao Cardápio</a>
+                  <a href="/" className="text-sm text-gray-600 hover:underline">Voltar ao Cardápio</a>
                 </div>
 
                 {error && <p className="text-red-600 text-sm">{error}</p>}
