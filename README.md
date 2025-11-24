@@ -464,13 +464,3 @@ Agradecimentos especiais a:
 - [ ] PWA (Progressive Web App)
 
 ---
-
-<div align="center">
-
-## ⭐ Se este projeto foi útil, considere dar uma estrela!
-
-### Feito com ❤️ e muita dedicação
-
-**[⬆ Voltar ao topo](#-cardápio-digital)**
-
-</div>
